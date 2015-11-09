@@ -1,0 +1,35 @@
+/* font */
+@font-face{
+	font-family: laura;
+	src: url(Lauraaa.ttf);
+}
+
+body{
+	/*background: #24ffc8;*/
+	background: #ffffff;
+	background-image: url("../images/page_back.jpg");
+	overflow: hidden;
+}
+
+h1{
+	font-family: laura;
+	font-size: 5em;
+	text-align: center;
+}
+
+.inputHolder{
+	text-align: center;
+	margin: 2ex;
+}
+
+.buttonHolder{
+	text-align: center;
+	margin: 2ex;
+}
+
+#drop_zone{
+	padding: 20px;
+	border-style: dotted;
+	width: 200px;
+	text-align: center;
+}

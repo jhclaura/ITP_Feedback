@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+
+		<title>Feedback</title>
+		<link rel="stylesheet" href="css/bootstrap.min.css">
+
+		<!-- <script type="text/javascript" src="http://www.parsecdn.com/js/parse-latest.js"></script> -->
+	</head>
+
+	<body>
+		<h1>
+			Feedback to Students
+		</h1>
+
+		<div id="drop_zone">Source here.</div>
+		<button id="use_sample" onclick="useSample(event)">Use Sample</button>
+		<button id="use_sample" onclick="useSamples(event)">Use Multiple Samples</button>
+
+		<form id="my-awesome-dropzone" action="/target" class="dropzone"></form>
+
+		<div class="inputHolder">
+			<textarea id="name" placeholder="your name"></textarea>
+			is it a secret?
+			<select id="secret">
+				<option selected value="-">-</option>
+				<option value="yes">Yes</option>
+				<option value="no">No</option>
+			</select>
+			<!-- <textarea id="secret"> is it a secret? </textarea> -->
+			<!-- <textarea id="password"> if it's a secret, set a password </textarea> -->
+			<br>
+			<button id="submit_button" onclick="submitButton(event)" style="">Submit</button>
+		</div>
+
+		<div class="buttonHolder">
+			Talk about what happened today.<br>
+			<button id="start_button" onclick="startButton(event)" style="">Start</button>
+		</div>
+
+		<div id="results">
+			<span id="final_span" class="final" style="color: #ff0000;"></span>
+			<span id="interim_span" class="interim"></span>
+			<br>
+			<span id="my_span" class="mySpan"></span>
+		</div>
+
+		<div class="buttonHolder">
+			<button id="sure_button" onclick="sureButton(event)" style="">Sure!</button>
+		</div>
+
+		<script type="text/javascript">
+
+			// Parse
+				// Parse.initialize("gYvmaEMoRvvcAazCoOIS9M2pI7fJzm4tqpdtdDT6", "MQxNPuuDvuMMUHzrzns79nXlXAWYh2BrIsAmMr0u");
+				// var TestObject = Parse.Object.extend("TestObject");
+				// var testObject = new TestObject();
+
+				// testObject.save( {name: "laura"}, {
+				// 	success: function(object){
+				// 		console.log("success!");
+				// 	},
+				// 	error: function(model, error){
+				// 		console.log("error!");
+				// 	}
+				// } );
+		</script>
+
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+		<script src="js/bootstrap.min.js"></script>
+		<!-- <script type="text/javascript" src="js/script.js"></script> -->
+
+	</body>
+</html>
