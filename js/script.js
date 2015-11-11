@@ -1,6 +1,6 @@
 var el, evaluateList;
 var name, pw;
-var evaluationScores;
+var evalScores, evalScoreLists=[];
 
 ////////////////////////////////////////////////
 
@@ -8,8 +8,8 @@ init();
 animate();
 
 function init () {
-
-	evaluationScores = byClass("eval_scores");
+	
+	evalScores = byClass("eval_scores");
 
 	// VEX_DIALOG
 		vex.defaultOptions.className = 'vex-theme-wireframe';
@@ -45,16 +45,32 @@ function init () {
 
 		byId('add_skill').onclick = function() {
 			var s_el = document.createElement('li');
+			var s_el_simple = document.createElement('li');
 			vex.dialog.prompt({
 				message: "Skill to add to evaluate:",
 				placeholder: "Weirdness",
 				callback: function(value){
 					s_el.innerHTML = value + '<i class="js-remove">X</i>';
 					evaluateList.el.appendChild(s_el);
+					//
+					s_el_simple.innerHTML = value;
+					for(var i=0; i<evalScores.length; i++){
+						evalScores[i].appendChild(s_el);
+					}
 				}
 			});
 			// s_el.innerHTML = 
 		}
+
+		// non-draggable
+		for(var i=0; i<evalScores.length; i++){
+			var evalScore = Sortable.create(evalScores[i], {
+				animation: 0,
+				disabled: true
+			});
+			evalScoreLists.push(evalScore);
+		}
+		
 }
 
 function animate() {
