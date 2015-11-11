@@ -5,54 +5,87 @@
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 
-		<title>Feedback</title>
-		<link rel="stylesheet" href="css/bootstrap.min.css">
+		<title>ITP_Feedback</title>
+		<link rel="stylesheet" href="css/third_party/bootstrap.min.css">
+		<link rel="stylesheet" href="css/third_party/vex.css">
+		<link rel="stylesheet" href="css/third_party/vex-theme-wireframe.css">
+		<link rel="stylesheet" href="css/style.css">
 	</head>
 
 	<body>
 		<h1>
-			Feedback to Students
+			ITP Feedback Creator
 		</h1>
 
-		<div id="drop_zone">Source here.</div>
-		<button id="use_sample" onclick="useSample(event)">Use Sample</button>
-		<button id="use_sample" onclick="useSamples(event)">Use Multiple Samples</button>
+		<div class="container">
+			<div class="info">
+				<div id="course_name">Course Name</div>
+				<div id="teacher_name">Teacher Name</div>
+				<div id="time_space">Course Time and Location</div>
+				<div id="course_number">Course Number</div>
+			</div>
 
-		<form id="my-awesome-dropzone" action="/target" class="dropzone"></form>
+			<div class="inputHolder">
+				<textarea id="textStart" placeholder="Stuff to stay at the begining of all emails."></textarea>
+				<textarea id="textEnd" placeholder="Stuff to stay at the end of all emails."></textarea>
+			</div>
 
-		<div class="inputHolder">
-			<textarea id="name" placeholder="your name"></textarea>
-			is it a secret?
-			<select id="secret">
-				<option selected value="-">-</option>
-				<option value="yes">Yes</option>
-				<option value="no">No</option>
-			</select>
-			<!-- <textarea id="secret"> is it a secret? </textarea> -->
-			<!-- <textarea id="password"> if it's a secret, set a password </textarea> -->
-			<br>
-			<button id="submit_button" onclick="submitButton(event)" style="">Submit</button>
-		</div>
+			<div class="page-header"> 
+				<h3>Objective Score Elements</h3>
+			</div>
+			<!-- <span class="label label-default">Skill_0</span>
+			<span class="label label-default">Skill_1</span>
+			<span class="label label-default">Skill_3</span> -->
+			<ul id="eval_items">
+				<li>
+					Fabrication
+					<i class="js-remove">X</i>
+				</li>
+				<li>
+					Participation
+					<i class="js-remove">X</i>
+				</li>
+				<li>
+					Concept developing
+					<i class="js-remove">X</i>
+				</li>
+				<li>
+					Organizing
+					<i class="js-remove">X</i>
+				</li>
+				<li>
+					Presentation
+					<i class="js-remove">X</i>
+				</li>
+			</ul>
+			<button id="add_skill">Add</button>
 
-		<div class="buttonHolder">
-			Talk about what happened today.<br>
-			<button id="start_button" onclick="startButton(event)" style="">Start</button>
-		</div>
+			<div class="studentHolder">
+				<div class="row">
+					<div class="col-xs-6 col-lg-4">
+						<h4>Laura Juo-Hsin, Chen</h4>
+						<img src="/images/laura2-300x300.png" class="img-responsive">
+					</div>
+					<div class="col-xs-12 col-sm-6 col-lg-8 eval_scores">
+						<li>Fabrication</li>
+						<li>Participation</li>
+						<li>Concept developing</li>
+						<li>Organizing</li>
+						<li>Presentation</li>
+					</div>
+				</div>
+			</div>
 
-		<div id="results">
-			<span id="final_span" class="final" style="color: #ff0000;"></span>
-			<span id="interim_span" class="interim"></span>
-			<br>
-			<span id="my_span" class="mySpan"></span>
-		</div>
-
-		<div class="buttonHolder">
-			<button id="sure_button" onclick="sureButton(event)" style="">Sure!</button>
+			<div class="buttonHolder">
+				<button id="saveAllButton" onclick="saveAllButton(event)" style="">Save All</button>
+			</div>
 		</div>
 
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-		<script src="js/bootstrap.min.js"></script>
-		<!-- <script type="text/javascript" src="js/script.js"></script> -->
+		<script src="js/third_party/bootstrap.min.js"></script>
+		<script src="js/third_party/Sortable.js"></script>
+		<script src="js/third_party/vex.combined.min.js"></script>
+		<script type="text/javascript" src="js/script.js"></script>
 
 	</body>
 </html>
