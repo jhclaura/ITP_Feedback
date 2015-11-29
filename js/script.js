@@ -197,7 +197,7 @@ function init () {
 			}).appendTo(studentRow);
 			$("<h4></h4>").text(val.firstname + ", " + val.lastname).appendTo($sdiv_1);
 			var $img = $("<img>", {
-				src: "/images/dummy/"+key%15+".png",
+				src: "images/dummy/"+key%15+".png",
 				class: "img-responsive",
 				width: 300,
 				height: 300
