@@ -87,81 +87,85 @@ function init () {
 		}
 
 		byId('update_skill').onclick = function() {
-			var currentEval = evaluateList.el.getElementsByTagName("li");
-			// console.log(currentEval);
-			// console.log(evaluateList.el.childNodes[1].innerHTML);
 
-			for(var i=0; i<evalScores.length; i++){
-				while (evalScores[i].firstChild) 
-					evalScores[i].removeChild(evalScores[i].firstChild);
-			}
+			// Alert to ask for confirmation before update and wipe out the records
+			vex.dialog.confirm({
+				message: 'This will reset the scaling history. Are you absolutely sure to do this?',
+				callback: function(value) {
+					console.log(value);
+					if(!value) {
+						return;
+					}
+					else{
+						var currentEval = evaluateList.el.getElementsByTagName("li");
+						// console.log(currentEval);
+						// console.log(evaluateList.el.childNodes[1].innerHTML);
 
-			// For each evaluation element at TOP
-			for(var i=0; i<currentEval.length; i++){
-
-				var tmpL = currentEval[i].innerHTML;
-				var tmpCut = tmpL.split("<");
-
-				// For each student, recreate the evaluation element
-				// v1
-				// for(var j=0; j<evalScores.length; j++){
-					// var s_el_simple = document.createElement('li');
-					// s_el_simple.innerHTML = tmpCut[0];
-					// evalScores[j].appendChild(s_el_simple);					
-				// }
-
-				// v2
-				// var $eLi = $("<li>").text(tmpCut[0]).appendTo($('.eval_scores'));
-
-				// var $eSpan = $("<span>",{
-				// 	class: "star-rating"
-				// }).appendTo($eLi);
-
-				// for(var j=0; j<5; j++){
-				// 	$("<input>", {
-				// 		type: "radio",
-				// 		name: tmpCut[0]+"Rating",
-				// 		value: j+1
-				// 	}).appendTo($eSpan);
-				// }
-
-				// v3
-				$('.eval_scores').each(function(index){
-					var $eLi = $("<li>").text(tmpCut[0]);
-					$(this).append($eLi);
-					var $eSpan = $("<span>",{
-						class: "star-rating"
-					}).appendTo($eLi);
-
-					if(index!=0){	// if it's not Laura(fake) / from JSON
-						for(var j=0; j<5; j++){
-							$("<input>", {
-								type: "radio",
-								name: allData[index-1].firstname+tmpCut[0]+"Rating",
-								value: j+1
-							}).appendTo($eSpan);
+						for(var i=0; i<evalScores.length; i++){
+							while (evalScores[i].firstChild) 
+								evalScores[i].removeChild(evalScores[i].firstChild);
 						}
-					} else {		// if it's Laura(fake)
-						for(var j=0; j<5; j++){
-							$("<input>", {
-								type: "radio",
-								name: "Laura Juo-Hsin"+tmpCut[0]+"Rating",
-								value: j+1
-							}).appendTo($eSpan);
+
+						// For each evaluation element at TOP
+						for(var i=0; i<currentEval.length; i++){
+
+							var tmpL = currentEval[i].innerHTML;
+							var tmpCut = tmpL.split("<");
+
+							// For each student, recreate the evaluation element
+							// v1
+							// for(var j=0; j<evalScores.length; j++){
+								// var s_el_simple = document.createElement('li');
+								// s_el_simple.innerHTML = tmpCut[0];
+								// evalScores[j].appendChild(s_el_simple);					
+							// }
+
+							// v2
+							// var $eLi = $("<li>").text(tmpCut[0]).appendTo($('.eval_scores'));
+
+							// var $eSpan = $("<span>",{
+							// 	class: "star-rating"
+							// }).appendTo($eLi);
+
+							// for(var j=0; j<5; j++){
+							// 	$("<input>", {
+							// 		type: "radio",
+							// 		name: tmpCut[0]+"Rating",
+							// 		value: j+1
+							// 	}).appendTo($eSpan);
+							// }
+
+							// v3
+							$('.eval_scores').each(function(index){
+								var $eLi = $("<li>").text(tmpCut[0]);
+								$(this).append($eLi);
+								var $eSpan = $("<span>",{
+									class: "star-rating"
+								}).appendTo($eLi);
+
+								if(index!=0){	// if it's not Laura(fake) / from JSON
+									for(var j=0; j<5; j++){
+										$("<input>", {
+											type: "radio",
+											name: allData[index-1].firstname+tmpCut[0]+"Rating",
+											value: j+1
+										}).appendTo($eSpan);
+									}
+								} else {		// if it's Laura(fake)
+									for(var j=0; j<5; j++){
+										$("<input>", {
+											type: "radio",
+											name: "Laura Juo-Hsin"+tmpCut[0]+"Rating",
+											value: j+1
+										}).appendTo($eSpan);
+									}
+								}
+							});
 						}
 					}
-				});
-			}
+				}
+			});	
 		}
-
-		// non-draggable
-		// for(var i=0; i<evalScores.length; i++){
-		// 	var evalScore = Sortable.create(evalScores[i], {
-		// 		animation: 0,
-		// 		disabled: true
-		// 	});
-		// 	evalScoreLists.push(evalScore);
-		// }
 
 	// default Eval Elements
 	var defaultEval = evaluateList.el.getElementsByTagName("li");
@@ -192,6 +196,12 @@ function init () {
 				class: "col-xs-6 col-lg-4"
 			}).appendTo(studentRow);
 			$("<h4></h4>").text(val.firstname + ", " + val.lastname).appendTo($sdiv_1);
+			var $img = $("<img>", {
+				src: "images/dummy/"+key%15+".png",
+				class: "img-responsive",
+				width: 300,
+				height: 300
+			}).appendTo($sdiv_1);
 
 			var $sdiv_2 = $("<div/>", {
 				class: "col-xs-12 col-sm-6 col-lg-8 eval_scores"
@@ -209,6 +219,20 @@ function init () {
 					}).appendTo($eSpan);
 				}
 			}
+
+			// text input
+			// <div class="col-xs-12 col-sm-6 col-lg-8 eval_text">
+			// 			<textarea id="LauraTextMiddle" placeholder="General feedback and opportunities."></textarea>
+			// 		</div>
+			var $sdiv_3 = $("<div/>", {
+				class: "col-xs-12 col-sm-6 col-lg-8 eval_text"
+			}).appendTo(studentRow);
+			var $text = $("<textarea>",{
+				id: val.firstname+"TextMiddle",
+				placeholder: "General feedback and opportunities to " + val.firstname + ".",
+				width: "80%",
+				height: "5em"
+			}).appendTo($sdiv_3);
 
 			studentsHolder.appendChild(studentRow);
 		});
