@@ -1,0 +1,72 @@
+/* font */
+@font-face{
+	font-family: laura;
+	src: url(Lauraaa.ttf);
+}
+
+body{
+	/*background: #24ffc8;*/
+	background: #ffffff;
+	/*overflow: hidden;*/
+}
+
+h1{
+	font-family: laura;
+	font-size: 5em;
+	text-align: center;
+}
+
+.inputHolder{
+	text-align: center;
+	margin: 2ex;
+}
+
+.inputHolder textarea {
+	width: 30em;
+	height: 5em;
+	margin-right: 1em;
+}
+
+#eval_items {
+	cursor: move;
+}
+
+#eval_items i{
+	transition: opacity .2s;
+	opacity: 0;
+	/*display: block;*/
+	cursor: pointer;
+	color: #c00;
+}
+
+#eval_items li:hover i{
+	opacity: 1;
+}
+
+#studentHolder {
+	margin-top: 2em;
+	margin-bottom: 2em;
+}
+
+.buttonHolder{
+	text-align: center;
+}
+
+.star-rating {
+	float:right;
+	margin-right: 2em;
+}
+
+input[type="radio"] {
+	margin-left: 1em;
+}
+
+[class*="col-"] {
+  /*padding-top: 15px;
+  padding-bottom: 15px;*/
+  padding: 15px;
+/*  background-color: #eee;
+  background-color: rgba(86,61,124,.15);*/
+  border: 1px solid #ddd;
+  border: 1px solid rgba(86,61,124,.2);
+}
