@@ -197,9 +197,10 @@ function init () {
 			}).appendTo(studentRow);
 			$("<h4></h4>").text(val.firstname + ", " + val.lastname).appendTo($sdiv_1);
 			var $img = $("<img>", {
-				src: "images/dummy/"+key%15+".png",
+				//src: "images/dummy/"+key%15+".png",
+				src: "https://itp.nyu.edu/image.php?image=/people_pics/itppics/" + val.netid + ".jpg",
 				class: "img-responsive",
-				width: 300,
+				//width: 300,
 				height: 300
 			}).appendTo($sdiv_1);
 
