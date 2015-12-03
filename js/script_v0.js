@@ -159,15 +159,26 @@ function init () {
 									class: "star-rating"
 								}).appendTo($eLi);
 
-								// To create FIVE ranking dots for each element
-								for(var j=0; j<5; j++){
-									// Create input element
-									// And assign specific name, eg Laura+Fabrication+Rating, so FIVE dots are in a group
-									$("<input>", {
-										type: "radio",
-										name: allData[index].firstname+tmpCut[0]+"Rating",
-										value: j+1
-									}).appendTo($eSpan);
+								if(index!=0){	// if it's not Laura(fake) / from JSON
+
+									// To create FIVE ranking dots for each element
+									for(var j=0; j<5; j++){
+										// Create input element
+										// And assign specific name, eg Laura+Fabrication+Rating, so FIVE dots are in a group
+										$("<input>", {
+											type: "radio",
+											name: allData[index-1].firstname+tmpCut[0]+"Rating",
+											value: j+1
+										}).appendTo($eSpan);
+									}
+								} else {		// if it's Laura(fake)
+									for(var j=0; j<5; j++){
+										$("<input>", {
+											type: "radio",
+											name: "Laura Juo-Hsin"+tmpCut[0]+"Rating",
+											value: j+1
+										}).appendTo($eSpan);
+									}
 								}
 							});
 						}

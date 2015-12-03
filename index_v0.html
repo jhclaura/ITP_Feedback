@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+
+		<title>Feedback</title>
+		<link rel="stylesheet" href="css/third_party/bootstrap.min.css">
+		<link rel="stylesheet" href="css/third_party/vex.css">
+		<link rel="stylesheet" href="css/third_party/vex-theme-wireframe.css">
+		<link rel="stylesheet" href="css/style.css">
+	</head>
+
+	<body>
+		<h1>
+			ITP Feedback Creator
+		</h1>
+
+		<div class="container">
+			<div class="info">
+				<div id="course_name">Course Name: </div>
+				<div id="teacher_name">Teacher Name: </div>
+				<div id="time_space">Course Time: </div>
+				<div id="course_number">Course Number: </div>
+			</div>
+
+			<!-- Textbox input -->
+			<div class="inputHolder">
+				<textarea id="textStart" placeholder="Stuff to stay at the begining of all emails."></textarea>
+				<textarea id="textEnd" placeholder="Stuff to stay at the end of all emails."></textarea>
+			</div>
+
+			<!-- Ranking elements at the top-->
+			<div class="page-header"> 
+				<h3>Objective Score Elements</h3>
+			</div>
+
+			<ul id="eval_items">
+				<li>
+					Fabrication
+					<i class="js-remove">X</i>
+				</li>
+				<li>
+					Participation
+					<i class="js-remove">X</i>
+				</li>
+				<li>
+					Concept developing
+					<i class="js-remove">X</i>
+				</li>
+				<li>
+					Organizing
+					<i class="js-remove">X</i>
+				</li>
+				<li>
+					Presentation
+					<i class="js-remove">X</i>
+				</li>
+			</ul>
+			<button id="add_skill">Add</button>
+			<button id="update_skill">Update</button>
+
+			<!-- Div for all the students -->
+			<div id="studentHolder">
+				<!-- Fake student, will delete later -->
+				<div class="row" id="Laura Juo-Hsin">
+					<div class="col-xs-6 col-lg-4">
+						<h4>Laura Juo-Hsin, Chen</h4>
+						<img src="images/laura2-300x300.png" class="img-responsive">
+					</div>
+					<div class="col-xs-12 col-sm-6 col-lg-8 eval_scores">
+						<li>Fabrication
+							<span class="star-rating">
+								<input type="radio" name="Laura Juo-HsinFabricationRating" value="1"><i></i>
+								<input type="radio" name="Laura Juo-HsinFabricationRating" value="2"><i></i>
+								<input type="radio" name="Laura Juo-HsinFabricationRating" value="3"><i></i>
+								<input type="radio" name="Laura Juo-HsinFabricationRating" value="4"><i></i>
+								<input type="radio" name="Laura Juo-HsinFabricationRating" value="5"><i></i>
+							</span>
+						</li>
+						<li>Participation
+							<span class="star-rating">
+								<input type="radio" name="Laura Juo-HsinParticipationRating" value="1"><i></i>
+								<input type="radio" name="Laura Juo-HsinParticipationRating" value="2"><i></i>
+								<input type="radio" name="Laura Juo-HsinParticipationRating" value="3"><i></i>
+								<input type="radio" name="Laura Juo-HsinParticipationRating" value="4"><i></i>
+								<input type="radio" name="Laura Juo-HsinParticipationRating" value="5"><i></i>
+							</span>
+						</li>
+						<li>Concept developing
+							<span class="star-rating">
+								<input type="radio" name="Laura Juo-HsinConcept developingRating" value="1"><i></i>
+								<input type="radio" name="Laura Juo-HsinConcept developingRating" value="2"><i></i>
+								<input type="radio" name="Laura Juo-HsinConcept developingRating" value="3"><i></i>
+								<input type="radio" name="Laura Juo-HsinConcept developingRating" value="4"><i></i>
+								<input type="radio" name="Laura Juo-HsinConcept developingRating" value="5"><i></i>
+							</span>
+						</li>
+						<li>Organizing
+							<span class="star-rating">
+								<input type="radio" name="Laura Juo-HsinOrganizingRating" value="1"><i></i>
+								<input type="radio" name="Laura Juo-HsinOrganizingRating" value="2"><i></i>
+								<input type="radio" name="Laura Juo-HsinOrganizingRating" value="3"><i></i>
+								<input type="radio" name="Laura Juo-HsinOrganizingRating" value="4"><i></i>
+								<input type="radio" name="Laura Juo-HsinOrganizingRating" value="5"><i></i>
+							</span>
+						</li>
+						<li>Presentation
+							<span class="star-rating">
+								<input type="radio" name="Laura Juo-HsinPresentationRating" value="1"><i></i>
+								<input type="radio" name="Laura Juo-HsinPresentationRating" value="2"><i></i>
+								<input type="radio" name="Laura Juo-HsinPresentationRating" value="3"><i></i>
+								<input type="radio" name="Laura Juo-HsinPresentationRating" value="4"><i></i>
+								<input type="radio" name="Laura Juo-HsinPresentationRating" value="5"><i></i>
+							</span>
+						</li>
+					</div>
+					<div class="col-xs-12 col-sm-6 col-lg-8 eval_text">
+						<textarea id="LauraTextMiddle" placeholder="General feedback and opportunities to Laura." style="width: 80%; height: 5em;"></textarea>
+					</div>
+				</div>
+			</div>
+
+			<!-- Bottom button to SAVE ALL data -->
+			<div class="buttonHolder">
+				<button id="saveAllButton" onclick="saveAllButton(event)" style="">Save All</button>
+			</div>
+		</div>
+
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+		<script src="js/third_party/bootstrap.min.js"></script>
+		<script src="js/third_party/Sortable.js"></script>
+		<script src="js/third_party/vex.combined.min.js"></script>
+		<script type="text/javascript" src="js/script.js"></script>
+
+	</body>
+</html>
