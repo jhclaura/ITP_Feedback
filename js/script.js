@@ -16,19 +16,19 @@ animate();
 
 function init () {
 
-	courseN = byId("course_name");
-	teacherN = byId("teacher_name");
-	courseT = byId("time_space");
-	courseNum = byId("course_number");
-
-	studentsHolder = byId("studentHolder");
-	
-	// get all the default eval scores of all the students
-	evalScores = byClass("eval_scores");
+	// Get html elements
+		courseN = byId("course_name");
+		teacherN = byId("teacher_name");
+		courseT = byId("time_space");
+		courseNum = byId("course_number");
+		studentsHolder = byId("studentHolder");
+		
+		// get all the eval ranking of all the students
+		evalScores = byClass("eval_scores");
 
 	// VEX_DIALOG
+	// For instructors to LogIn (TO-DO)
 		vex.defaultOptions.className = 'vex-theme-wireframe';
-		// vex.dialog.alert("Good morning teacher Shiffman.");
 		vex.dialog.open({
 			message: "Enter your netId and password:",
 			input: "<input name=\"netId\" type=\"text\" placeholder=\"netId\" required />\n<input name=\"password\" type=\"password\" placeholder=\"Password\" required />",
@@ -50,9 +50,10 @@ function init () {
 		});
 
 	// SORTABLE_DRAGGING
-	// Eval at the top of the page
+	// The ranking things at the top of the page
 		el = document.getElementById('eval_items');
 
+		// Create Sortable object at the TOP
 		evaluateList = Sortable.create(el, {
 			animation: 150,
 			filter: '.js-remove',
@@ -65,15 +66,19 @@ function init () {
 			// }
 		});
 
+		// ADD button
+		// Adding new element for ranking
 		byId('add_skill').onclick = function() {
-			var s_el = document.createElement('li');			// for the TOP
-			var s_el_simple = document.createElement('li');		// for every one
+			var s_el = document.createElement('li');			// Get all the TOP elements
+			var s_el_simple = document.createElement('li');		// Get all the students' elements
 
 			vex.dialog.prompt({
 				message: "Skill to add to evaluate:",
 				placeholder: "Weirdness",
 				callback: function(value){
-
+					if(!value) {
+						return;
+					}
 					s_el.innerHTML = value + '<i class="js-remove">X</i>';
 					evaluateList.el.appendChild(s_el);
 					//
@@ -86,21 +91,23 @@ function init () {
 			// s_el.innerHTML = 
 		}
 
+		// UPDATE button
+		// If clicked, all the students' elements will be updated as same as the TOP one
 		byId('update_skill').onclick = function() {
 
-			// Alert to ask for confirmation before update and wipe out the records
+			// Alert to ask for confirmation before update, and wipe out the ranking history (if any)
 			vex.dialog.confirm({
 				message: 'This will reset the scaling history. Are you absolutely sure to do this?',
 				callback: function(value) {
-					console.log(value);
+					// If No then do nothing
 					if(!value) {
 						return;
 					}
 					else{
+						// Get the evaluation element object at the TOP
 						var currentEval = evaluateList.el.getElementsByTagName("li");
-						// console.log(currentEval);
-						// console.log(evaluateList.el.childNodes[1].innerHTML);
 
+						// Delete the eval ranking of all the students
 						for(var i=0; i<evalScores.length; i++){
 							while (evalScores[i].firstChild) 
 								evalScores[i].removeChild(evalScores[i].firstChild);
@@ -109,6 +116,7 @@ function init () {
 						// For each evaluation element at TOP
 						for(var i=0; i<currentEval.length; i++){
 
+							// Get the text of the element, eg Fabrication
 							var tmpL = currentEval[i].innerHTML;
 							var tmpCut = tmpL.split("<");
 
@@ -136,29 +144,30 @@ function init () {
 							// }
 
 							// v3
+							// For every Div with className "eval_scores"
+							// --> For every students' rankings
 							$('.eval_scores').each(function(index){
+
+								// Create li element, and assign text, eg Fabrication
+								// Then append to the Div
 								var $eLi = $("<li>").text(tmpCut[0]);
 								$(this).append($eLi);
+
+								// Create span element, to restore all the ranking inputs
+								// Then append to li
 								var $eSpan = $("<span>",{
 									class: "star-rating"
 								}).appendTo($eLi);
 
-								if(index!=0){	// if it's not Laura(fake) / from JSON
-									for(var j=0; j<5; j++){
-										$("<input>", {
-											type: "radio",
-											name: allData[index-1].firstname+tmpCut[0]+"Rating",
-											value: j+1
-										}).appendTo($eSpan);
-									}
-								} else {		// if it's Laura(fake)
-									for(var j=0; j<5; j++){
-										$("<input>", {
-											type: "radio",
-											name: "Laura Juo-Hsin"+tmpCut[0]+"Rating",
-											value: j+1
-										}).appendTo($eSpan);
-									}
+								// To create FIVE ranking dots for each element
+								for(var j=0; j<5; j++){
+									// Create input element
+									// And assign specific name, eg Laura+Fabrication+Rating, so FIVE dots are in a group
+									$("<input>", {
+										type: "radio",
+										name: allData[index].firstname+tmpCut[0]+"Rating",
+										value: j+1
+									}).appendTo($eSpan);
 								}
 							});
 						}
@@ -167,9 +176,10 @@ function init () {
 			});	
 		}
 
-	// default Eval Elements
+	// Get all the default eval ranking elements, from the Sortable object at the TOP
 	var defaultEval = evaluateList.el.getElementsByTagName("li");
 
+	// Get all the names of the default eval ranking elements
 	for(var i=0; i<defaultEval.length; i++){
 		var tmpL = defaultEval[i].innerHTML;
 		var tmpCut = tmpL.split("<");
@@ -179,39 +189,62 @@ function init () {
 	// read JSON
 	$.getJSON("data/section.json", function(data){
 		allData = data;
-		console.log(data[0]);
+		// console.log(data[0]);
 
 		courseN.innerHTML += data[0].title;
 		teacherN.innerHTML += data[0].title;
 		courseT.innerHTML += (data[0].semester + " " + data[0].year);
 		courseNum.innerHTML += data[0].course_number;
 
+		// For each student
 		$.each(data, function(key, val){
-			// console.log(val.title);
+
+			// Create a div to contain everything of this student
 			var studentRow = document.createElement('div');
 			studentRow.className = "row";
 			studentRow.id = val.firstname;
 
+			// Create div for student name & image
+			// As Grid by specific className to use in CSS
+			// Then append to studentRow (Main div)
 			var $sdiv_1 = $("<div/>", {
 				class: "col-xs-6 col-lg-4"
 			}).appendTo(studentRow);
+
+			// Create h4 for showing the student name
+			// Then append to sdiv_1 (Grid div)
 			$("<h4></h4>").text(val.firstname + ", " + val.lastname).appendTo($sdiv_1);
+
+			// Create img for showing the student image
+			// Then append to sdiv_1 (Grid div)
 			var $img = $("<img>", {
-				//src: "images/dummy/"+key%15+".png",
 				src: "https://itp.nyu.edu/image.php?image=/people_pics/itppics/" + val.netid + ".jpg",
 				class: "img-responsive",
-				//width: 300,
 				height: 300
 			}).appendTo($sdiv_1);
 
+			// Create div as Grid, by specific className to use in CSS
+			// Then append to sdiv_1 (Grid div)
 			var $sdiv_2 = $("<div/>", {
 				class: "col-xs-12 col-sm-6 col-lg-8 eval_scores"
 			}).appendTo(studentRow);
+
+			// For each eval element, create ranking dots
 			for(var i=0; i<defaultEvals.length; i++){
+
+				// Create li element, and assign text, eg Fabrication
+				// Then append to the Div
 				var $eLi = $("<li>").text(defaultEvals[i]).appendTo($sdiv_2);
+
+				// Create span element, to restore all the ranking inputs
+				// Then append to li
 				var $eSpan = $("<span>",{
 					class: "star-rating"
 				}).appendTo($eLi);
+
+				// To create FIVE ranking dots for each element
+				// Create input element
+				// And assign specific name, eg Laura+Fabrication+Rating, so FIVE dots are in a group
 				for(var j=0; j<5; j++){
 					$("<input>", {
 						type: "radio",
@@ -221,13 +254,13 @@ function init () {
 				}
 			}
 
-			// text input
-			// <div class="col-xs-12 col-sm-6 col-lg-8 eval_text">
-			// 			<textarea id="LauraTextMiddle" placeholder="General feedback and opportunities."></textarea>
-			// 		</div>
+			// Create div for text input
+			// Then append to studentRow
 			var $sdiv_3 = $("<div/>", {
 				class: "col-xs-12 col-sm-6 col-lg-8 eval_text"
 			}).appendTo(studentRow);
+
+			// Create textarea element
 			var $text = $("<textarea>",{
 				id: val.firstname+"TextMiddle",
 				placeholder: "General feedback and opportunities to " + val.firstname + ".",
@@ -235,6 +268,7 @@ function init () {
 				height: "5em"
 			}).appendTo($sdiv_3);
 
+			// Append studentRow (of each student), to studentsHolder (for all student)
 			studentsHolder.appendChild(studentRow);
 		});
 	});
