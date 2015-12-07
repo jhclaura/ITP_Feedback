@@ -8,6 +8,8 @@ var el, evaluateList;
 var name, pw;
 var evalScores, evalScoreLists=[];
 
+var listToBeKeptPpl=[], listToBeKept=[];
+
 
 ////////////////////////////////////////////////
 
@@ -79,6 +81,7 @@ function init () {
 					if(!value) {
 						return;
 					}
+					s_el.className = value;
 					s_el.innerHTML = value + '<i class="js-remove">X</i>';
 					evaluateList.el.appendChild(s_el);
 					//
@@ -107,14 +110,91 @@ function init () {
 						// Get the evaluation element object at the TOP
 						var currentEval = evaluateList.el.getElementsByTagName("li");
 
-						// Delete the eval ranking of all the students
+						listToBeKeptPpl = [];
+						// listToBeKept = [];
+
+						// Detection for DELETE
+						// - using all first student
+						for(var k=0; k<evalScores.length; k++){
+
+							listToBeKept = [];
+							for(var i=0; i<evalScores[k].children.length; i++){
+								var keepObj = {};
+								keepObj['keep'] = false;
+								keepObj['name'] = evalScores[k].children[i].className;
+								keepObj['score'] = -1;
+								listToBeKept.push(keepObj);
+
+								for(var j=0; j<currentEval.length; j++){
+									if( evalScores[k].children[i].className == currentEval[j].className ){
+										listToBeKept[i].keep = true;
+										listToBeKept[i].score = $("[name='"+allData[k].firstname+currentEval[j].className+"Rating']:checked").val();
+										// listToBeKept[i].name = currentEval[j].className;
+										console.log("keep li " + currentEval[j].className);
+									}
+								}
+								// Delete the eval ranking of all the students
+									// while (evalScores[i].firstChild) 
+									// 	evalScores[i].removeChild(evalScores[i].firstChild);
+							}
+							listToBeKeptPpl.push(listToBeKept);
+						}
+
+						// Delete
+						// v.0 -ALL
 						for(var i=0; i<evalScores.length; i++){
 							while (evalScores[i].firstChild) 
 								evalScores[i].removeChild(evalScores[i].firstChild);
 						}
+						// v.1
+						// for(var i=0; i<evalScores.length; i++){
+						// 	for(var j=0; j<listToBeKept.length; j++){
+						// 		if( !listToBeKept[j].keep ){
+						// 			console.log("remove " + evalScores[i].children[j].className);
+						// 			evalScores[i].removeChild(evalScores[i].children[j]);
+						// 			listToBeKept.splice(j,1);
+						// 		}
+						// 	}
+						// }
+						// v.2
+						// for(var j=0; j<listToBeKept.length; j++){
+						// 	for(var i=0; i<evalScores.length; i++){
+						// 		if( !listToBeKept[j].keep ){
+						// 			console.log("remove " + evalScores[i].children[j].className);
+						// 			evalScores[i].removeChild(evalScores[i].children[j]);
+						// 		}
+						// 	}
+						// 	listToBeKept.splice(j,1);
+						// }
+						// v.3
+						// for(var j=0; j<listToBeKept.length; j++){
+						// 	// for(var i=0; i<evalScores.length; i++){
+						// 		if( !listToBeKept[j].keep ){
+						// 			console.log("remove " + listToBeKept[j].name);
+						// 			var tmpCN = listToBeKept[j].name;
+						// 			tmpCN = tmpCN.split(" ");
+    		// 						if(tmpCN.length>1)
+    		// 							$(".eval_scores").children("."+tmpCN[0]+"."+tmpCN[1]).remove();
+    		// 						else
+    		// 							$(".eval_scores").children("."+listToBeKept[j].name).remove();
+						// 		}
+						// }
 
 						// For each evaluation element at TOP
 						for(var i=0; i<currentEval.length; i++){
+							var isCheckedAlready = false;
+							var indexOfCheckedList = -1;
+
+							// Get the checked Value!
+							// for(var j=0; j<listToBeKept.length; j++){
+							for(var j=0; j<listToBeKeptPpl[0].length; j++){
+								if( (currentEval[i].className == listToBeKeptPpl[0][j].name)
+									&& listToBeKeptPpl[0][j].keep ) {
+									isCheckedAlready = true;
+									indexOfCheckedList = j;
+									console.log(currentEval[i].className + "is checked (first student): " + listToBeKeptPpl[0][j].score);
+								}
+							}
 
 							// Get the text of the element, eg Fabrication
 							var tmpL = currentEval[i].innerHTML;
@@ -150,7 +230,14 @@ function init () {
 
 								// Create li element, and assign text, eg Fabrication
 								// Then append to the Div
-								var $eLi = $("<li>").text(tmpCut[0]);
+								// v.1
+								// var $eLi = $("<li>").text(tmpCut[0]);
+								// v.2
+								var $eLi = $("<li>", {
+									text: tmpCut[0],
+									class: tmpCut[0]
+								});
+
 								$(this).append($eLi);
 
 								// Create span element, to restore all the ranking inputs
@@ -159,15 +246,33 @@ function init () {
 									class: "star-rating"
 								}).appendTo($eLi);
 
+								console.log("index: " + index);
+
 								// To create FIVE ranking dots for each element
 								for(var j=0; j<5; j++){
 									// Create input element
 									// And assign specific name, eg Laura+Fabrication+Rating, so FIVE dots are in a group
-									$("<input>", {
-										type: "radio",
-										name: allData[index].firstname+tmpCut[0]+"Rating",
-										value: j+1
-									}).appendTo($eSpan);
+									// v.1
+									// $("<input>", {
+									// 	type: "radio",
+									// 	name: allData[index].firstname+tmpCut[0]+"Rating",
+									// 	value: j+1
+									// }).appendTo($eSpan);
+
+									if( isCheckedAlready && j==(listToBeKeptPpl[index][indexOfCheckedList].score-1) ){
+										$("<input>", {
+											type: "radio",
+											name: allData[index].firstname+tmpCut[0]+"Rating",
+											value: j+1,
+											checked: "checked"
+										}).appendTo($eSpan);
+									} else {
+										$("<input>", {
+											type: "radio",
+											name: allData[index].firstname+tmpCut[0]+"Rating",
+											value: j+1
+										}).appendTo($eSpan);
+									}
 								}
 							});
 						}
@@ -183,6 +288,7 @@ function init () {
 	for(var i=0; i<defaultEval.length; i++){
 		var tmpL = defaultEval[i].innerHTML;
 		var tmpCut = tmpL.split("<");
+		// tmpCut[0] = tmpCut[0].replace(/\s+/g, '');
 		defaultEvals.push(tmpCut[0]);
 	}
 
@@ -234,7 +340,13 @@ function init () {
 
 				// Create li element, and assign text, eg Fabrication
 				// Then append to the Div
-				var $eLi = $("<li>").text(defaultEvals[i]).appendTo($sdiv_2);
+				// v.1
+				// var $eLi = $("<li>").text(defaultEvals[i]).appendTo($sdiv_2);
+				// v.2
+				var $eLi = $("<li>", {
+					text: defaultEvals[i],
+					class: defaultEvals[i]
+				}).appendTo($sdiv_2);
 
 				// Create span element, to restore all the ranking inputs
 				// Then append to li
