@@ -129,8 +129,7 @@ function init () {
 									if( evalScores[k].children[i].className == currentEval[j].className ){
 										listToBeKept[i].keep = true;
 										listToBeKept[i].score = $("[name='"+allData[k].firstname+currentEval[j].className+"Rating']:checked").val();
-										// listToBeKept[i].name = currentEval[j].className;
-										console.log("keep li " + currentEval[j].className);
+										// console.log("keep li " + currentEval[j].className);
 									}
 								}
 								// Delete the eval ranking of all the students
@@ -246,7 +245,7 @@ function init () {
 									class: "star-rating"
 								}).appendTo($eLi);
 
-								console.log("index: " + index);
+								// console.log("index: " + index);
 
 								// To create FIVE ranking dots for each element
 								for(var j=0; j<5; j++){
@@ -259,19 +258,27 @@ function init () {
 									// 	value: j+1
 									// }).appendTo($eSpan);
 
+									var $eLabel = $("<label>", {
+										class: "radio-inline",
+										text: j+1
+									});
+
 									if( isCheckedAlready && j==(listToBeKeptPpl[index][indexOfCheckedList].score-1) ){
 										$("<input>", {
 											type: "radio",
 											name: allData[index].firstname+tmpCut[0]+"Rating",
 											value: j+1,
 											checked: "checked"
-										}).appendTo($eSpan);
+										}).appendTo($eLabel);
+
+										$eLabel.appendTo($eSpan);
 									} else {
 										$("<input>", {
 											type: "radio",
 											name: allData[index].firstname+tmpCut[0]+"Rating",
 											value: j+1
-										}).appendTo($eSpan);
+										}).appendTo($eLabel);
+										$eLabel.appendTo($eSpan);
 									}
 								}
 							});
@@ -350,19 +357,32 @@ function init () {
 
 				// Create span element, to restore all the ranking inputs
 				// Then append to li
+				// v.1
 				var $eSpan = $("<span>",{
 					class: "star-rating"
 				}).appendTo($eLi);
+
+				// v.2
+				// var $eLabel = $("<label>", {
+				// 	class: "radio-inline"
+				// }).appendTo($eLi);
 
 				// To create FIVE ranking dots for each element
 				// Create input element
 				// And assign specific name, eg Laura+Fabrication+Rating, so FIVE dots are in a group
 				for(var j=0; j<5; j++){
+					var $eLabel = $("<label>", {
+						class: "radio-inline",
+						text: j+1
+					});
+
 					$("<input>", {
 						type: "radio",
 						name: val.firstname+defaultEvals[i]+"Rating",
 						value: j+1
-					}).appendTo($eSpan);
+					}).appendTo($eLabel);
+
+					$eLabel.appendTo($eSpan);
 				}
 			}
 
@@ -375,9 +395,41 @@ function init () {
 			// Create textarea element
 			var $text = $("<textarea>",{
 				id: val.firstname+"TextMiddle",
-				placeholder: "General feedback and opportunities to " + val.firstname + ".",
-				width: "80%",
-				height: "5em"
+				placeholder: "Put down some \"Opportunities\" to " + val.firstname + ".",
+				// width: "80%",
+				// height: "5em",
+				class: "form-control",
+				rows: "3"
+			}).appendTo($sdiv_3);
+
+			var $butnS = $("<button>",{
+				id: val.firstname+"SaveButton",
+				class: "btn btn-default",
+				text: "Save",
+				click:  function(){
+					   		console.log("save data of " + val.firstname + "!");
+					    }
+			}).appendTo($sdiv_3);
+
+			var $butnE = $("<button>",{
+				id: val.firstname+"EmailButton",
+				class: "btn btn-default",
+				text: "Send Email",
+				click:  function(){
+							//v.1
+							// var mailto_link = "mailto:" + "linkinmonkey@gmail.com" + "?subject=Feedback on " + allData[0].title + "&body=" + $("#textStart").val();
+							// // window.location.href = "mailto:linkinmonkey@gmail.com?subject=Feedback on " + allData[0].title;
+							// // open new window
+							// window.open(mailto_link,'emailWindow');
+
+							//v.2
+							// reference: http://email.about.com/library/misc/blmailto_encoder.htm
+							var infoObj = {
+								email: val.netid + "@nyu.edu",
+								name: val.firstname
+							};
+							makeMailto( infoObj );
+						}
 			}).appendTo($sdiv_3);
 
 			// Append studentRow (of each student), to studentsHolder (for all student)
@@ -394,6 +446,47 @@ function animate() {
 
 function update() {
 
+}
+
+var strMailto, hasQ;
+function addField(fieldName, formElement, encode) {
+	if (formElement != "")
+	{
+		if (hasQ)
+			strMailto += "&";
+		else
+		{
+			strMailto += "?";
+			hasQ = true;
+		}
+		strMailto += fieldName + "=";
+		if (encode)
+			strMailto += encodeURIComponent(formElement);
+		else
+			strMailto += formElement;
+	}
+}
+
+function makeMailto( _infoObj ) {
+	if ( $("#textStart").val() == "" || $("#textEnd").val() == "" )
+	{
+		vex.dialog.confirm({
+			message: 'Did you forget to put down what do you want to say to the student?',
+			callback: function(value) {
+				if(value!="false")
+					return;
+			}
+		});
+	}
+	strMailto = "mailto:";
+	strMailto += _infoObj.email;
+	hasQ = false;
+	addField("subject", "Feedback on " + allData[0].title, true);
+	var emailBody = "Hi " + _infoObj.name + ",\n\n" + $("#textStart").val() + "\n\n\n" + $("#textEnd").val() + "\n\nWarmest,\nLaura";
+	addField("body", emailBody, true);
+	setTimeout(function(){
+		window.open(strMailto, 'emailWindow');
+	},500);
 }
 
 function byId(_id) {
