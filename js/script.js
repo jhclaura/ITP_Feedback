@@ -9,6 +9,7 @@ var name, pw;
 var evalScores, evalScoreLists=[];
 
 var listToBeKeptPpl=[], listToBeKept=[];
+var dataUrlObject={};
 
 
 ////////////////////////////////////////////////
@@ -339,7 +340,8 @@ function init () {
 			// Create div as Grid, by specific className to use in CSS
 			// Then append to sdiv_1 (Grid div)
 			var $sdiv_2 = $("<div/>", {
-				class: "col-xs-12 col-sm-6 col-lg-8 eval_scores"
+				class: "col-xs-12 col-sm-6 col-lg-8 eval_scores",
+				id: val.netid + "RankingDiv"
 			}).appendTo(studentRow);
 
 			// For each eval element, create ranking dots
@@ -394,17 +396,17 @@ function init () {
 
 			// Create textarea element
 			var $text = $("<textarea>",{
-				id: val.firstname+"TextMiddle",
+				id: val.netid+"TextMiddle",
 				placeholder: "Put down some \"Opportunities\" to " + val.firstname + ".",
 				// width: "80%",
 				// height: "5em",
 				class: "form-control",
-				rows: "3"
+				rows: "6"
 			}).appendTo($sdiv_3);
 
 			var $butnS = $("<button>",{
 				id: val.firstname+"SaveButton",
-				class: "btn btn-default",
+				class: "btn btn-default btnSS",
 				text: "Save",
 				click:  function(){
 					   		console.log("save data of " + val.firstname + "!");
@@ -412,8 +414,8 @@ function init () {
 			}).appendTo($sdiv_3);
 
 			var $butnE = $("<button>",{
-				id: val.firstname+"EmailButton",
-				class: "btn btn-default",
+				id: val.netid+"EmailButton",
+				class: "btn btn-default btnSS",
 				text: "Send Email",
 				click:  function(){
 							//v.1
@@ -426,7 +428,9 @@ function init () {
 							// reference: http://email.about.com/library/misc/blmailto_encoder.htm
 							var infoObj = {
 								email: val.netid + "@nyu.edu",
-								name: val.firstname
+								name: val.firstname,
+								netid: val.netid,
+								course: val.title
 							};
 							makeMailto( infoObj );
 						}
@@ -468,25 +472,99 @@ function addField(fieldName, formElement, encode) {
 }
 
 function makeMailto( _infoObj ) {
-	if ( $("#textStart").val() == "" || $("#textEnd").val() == "" )
-	{
+
+	// SAVE IMAGE, using html2Canvas library
+	// Ref: http://jsfiddle.net/AbdiasSoftware/7PRNN/
+	var _id = _infoObj.netid;
+	var whatToGrab = "#"+_id+"RankingDiv";
+	/*
+	html2canvas($(whatToGrab), {
+		// $("#"+_infoObj.netid+"RankingDiv")
+        onrendered: function(canvas) {
+            // document.body.appendChild(canvas);
+
+            var dataUrl = canvas.toDataURL("image/png");
+            dataUrlObject[_id] = dataUrl;
+
+		    var imageFoo = document.createElement('img');
+			imageFoo.src = dataUrl;
+			// document.body.appendChild(imageFoo);
+
+			// Download IMG
+			downloadURI(dataUrl, _infoObj.name + "Ranking" + _infoObj.course + ".png");
+        }
+    });
+	*/
+
+	// Compose Email!
+	if ( $("#textStart").val() == "" || $("#textEnd").val() == "" || $("#"+_id+"TextMiddle").val() == "" )	{
 		vex.dialog.confirm({
 			message: 'Did you forget to put down what do you want to say to the student?',
+			buttons: [
+				$.extend({}, vex.dialog.buttons.YES, {
+					text: 'No I didn\'t.' 
+				}),
+				$.extend({}, vex.dialog.buttons.NO, {
+					text: 'I forgot.'
+				})
+			],
 			callback: function(value) {
-				if(value!="false")
+				console.log(value);
+				if(value==false)
 					return;
+				else{
+					// Capture & Save image
+					html2canvas($(whatToGrab), {
+						// $("#"+_infoObj.netid+"RankingDiv")
+				        onrendered: function(canvas) {
+				            // document.body.appendChild(canvas);
+
+				            var dataUrl = canvas.toDataURL("image/png");
+				            dataUrlObject[_id] = dataUrl;
+
+						    var imageFoo = document.createElement('img');
+							imageFoo.src = dataUrl;
+							// document.body.appendChild(imageFoo);
+
+							// Download IMG
+							downloadURI(dataUrl, _infoObj.name + "Ranking" + _infoObj.course + ".png");
+				        }
+				    });
+
+				    // Compose Email
+					strMailto = "mailto:";
+					strMailto += _infoObj.email;
+					hasQ = false;
+					addField("subject", "Feedback on " + allData[0].title, true);
+					var emailBody = "Hi "
+									+ _infoObj.name
+									+ ",\n\n"
+									+ $("#textStart").val()
+									+ "\n\n"
+									+ "Here's your objective scores:\n"
+									+ "(Replace this by inserting the \"" + _infoObj.name + "Ranking" + _infoObj.course + ".png\" image you just saved.)"
+									+ "\n\n"
+									+ $("#"+_id+"TextMiddle").val()
+									+ "\n\n"
+									+ $("#textEnd").val()
+									+ "\n\nWarmest,\nLaura";
+
+					addField("body", emailBody, true);
+
+					setTimeout(function(){
+						window.open(strMailto, 'emailWindow');
+					},500);
+				}
 			}
 		});
 	}
-	strMailto = "mailto:";
-	strMailto += _infoObj.email;
-	hasQ = false;
-	addField("subject", "Feedback on " + allData[0].title, true);
-	var emailBody = "Hi " + _infoObj.name + ",\n\n" + $("#textStart").val() + "\n\n\n" + $("#textEnd").val() + "\n\nWarmest,\nLaura";
-	addField("body", emailBody, true);
-	setTimeout(function(){
-		window.open(strMailto, 'emailWindow');
-	},500);
+}
+
+function downloadURI(uri, name) {
+	var link = document.createElement("a");
+	link.download = name;
+	link.href = uri;
+	link.click();
 }
 
 function byId(_id) {
