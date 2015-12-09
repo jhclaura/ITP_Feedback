@@ -54,11 +54,16 @@ h1{
 
 .star-rating {
 	float:right;
-	margin-right: 2em;
+	/*margin-right: 2em;*/
 }
 
 input[type="radio"] {
 	margin-left: 1em;
+}
+
+.btnSS {
+	float:right;
+	margin-top: 3em;
 }
 
 [class*="col-"] {

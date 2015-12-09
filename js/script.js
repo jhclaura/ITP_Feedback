@@ -8,6 +8,9 @@ var el, evaluateList;
 var name, pw;
 var evalScores, evalScoreLists=[];
 
+var listToBeKeptPpl=[], listToBeKept=[];
+var dataUrlObject={};
+
 
 ////////////////////////////////////////////////
 
@@ -79,6 +82,7 @@ function init () {
 					if(!value) {
 						return;
 					}
+					s_el.className = value;
 					s_el.innerHTML = value + '<i class="js-remove">X</i>';
 					evaluateList.el.appendChild(s_el);
 					//
@@ -107,14 +111,90 @@ function init () {
 						// Get the evaluation element object at the TOP
 						var currentEval = evaluateList.el.getElementsByTagName("li");
 
-						// Delete the eval ranking of all the students
+						listToBeKeptPpl = [];
+						// listToBeKept = [];
+
+						// Detection for DELETE
+						// - using all first student
+						for(var k=0; k<evalScores.length; k++){
+
+							listToBeKept = [];
+							for(var i=0; i<evalScores[k].children.length; i++){
+								var keepObj = {};
+								keepObj['keep'] = false;
+								keepObj['name'] = evalScores[k].children[i].className;
+								keepObj['score'] = -1;
+								listToBeKept.push(keepObj);
+
+								for(var j=0; j<currentEval.length; j++){
+									if( evalScores[k].children[i].className == currentEval[j].className ){
+										listToBeKept[i].keep = true;
+										listToBeKept[i].score = $("[name='"+allData[k].firstname+currentEval[j].className+"Rating']:checked").val();
+										// console.log("keep li " + currentEval[j].className);
+									}
+								}
+								// Delete the eval ranking of all the students
+									// while (evalScores[i].firstChild) 
+									// 	evalScores[i].removeChild(evalScores[i].firstChild);
+							}
+							listToBeKeptPpl.push(listToBeKept);
+						}
+
+						// Delete
+						// v.0 -ALL
 						for(var i=0; i<evalScores.length; i++){
 							while (evalScores[i].firstChild) 
 								evalScores[i].removeChild(evalScores[i].firstChild);
 						}
+						// v.1
+						// for(var i=0; i<evalScores.length; i++){
+						// 	for(var j=0; j<listToBeKept.length; j++){
+						// 		if( !listToBeKept[j].keep ){
+						// 			console.log("remove " + evalScores[i].children[j].className);
+						// 			evalScores[i].removeChild(evalScores[i].children[j]);
+						// 			listToBeKept.splice(j,1);
+						// 		}
+						// 	}
+						// }
+						// v.2
+						// for(var j=0; j<listToBeKept.length; j++){
+						// 	for(var i=0; i<evalScores.length; i++){
+						// 		if( !listToBeKept[j].keep ){
+						// 			console.log("remove " + evalScores[i].children[j].className);
+						// 			evalScores[i].removeChild(evalScores[i].children[j]);
+						// 		}
+						// 	}
+						// 	listToBeKept.splice(j,1);
+						// }
+						// v.3
+						// for(var j=0; j<listToBeKept.length; j++){
+						// 	// for(var i=0; i<evalScores.length; i++){
+						// 		if( !listToBeKept[j].keep ){
+						// 			console.log("remove " + listToBeKept[j].name);
+						// 			var tmpCN = listToBeKept[j].name;
+						// 			tmpCN = tmpCN.split(" ");
+    		// 						if(tmpCN.length>1)
+    		// 							$(".eval_scores").children("."+tmpCN[0]+"."+tmpCN[1]).remove();
+    		// 						else
+    		// 							$(".eval_scores").children("."+listToBeKept[j].name).remove();
+						// 		}
+						// }
 
 						// For each evaluation element at TOP
 						for(var i=0; i<currentEval.length; i++){
+							var isCheckedAlready = false;
+							var indexOfCheckedList = -1;
+
+							// Get the checked Value!
+							// for(var j=0; j<listToBeKept.length; j++){
+							for(var j=0; j<listToBeKeptPpl[0].length; j++){
+								if( (currentEval[i].className == listToBeKeptPpl[0][j].name)
+									&& listToBeKeptPpl[0][j].keep ) {
+									isCheckedAlready = true;
+									indexOfCheckedList = j;
+									console.log(currentEval[i].className + "is checked (first student): " + listToBeKeptPpl[0][j].score);
+								}
+							}
 
 							// Get the text of the element, eg Fabrication
 							var tmpL = currentEval[i].innerHTML;
@@ -150,7 +230,14 @@ function init () {
 
 								// Create li element, and assign text, eg Fabrication
 								// Then append to the Div
-								var $eLi = $("<li>").text(tmpCut[0]);
+								// v.1
+								// var $eLi = $("<li>").text(tmpCut[0]);
+								// v.2
+								var $eLi = $("<li>", {
+									text: tmpCut[0],
+									class: tmpCut[0]
+								});
+
 								$(this).append($eLi);
 
 								// Create span element, to restore all the ranking inputs
@@ -159,15 +246,41 @@ function init () {
 									class: "star-rating"
 								}).appendTo($eLi);
 
+								// console.log("index: " + index);
+
 								// To create FIVE ranking dots for each element
 								for(var j=0; j<5; j++){
 									// Create input element
 									// And assign specific name, eg Laura+Fabrication+Rating, so FIVE dots are in a group
-									$("<input>", {
-										type: "radio",
-										name: allData[index].firstname+tmpCut[0]+"Rating",
-										value: j+1
-									}).appendTo($eSpan);
+									// v.1
+									// $("<input>", {
+									// 	type: "radio",
+									// 	name: allData[index].firstname+tmpCut[0]+"Rating",
+									// 	value: j+1
+									// }).appendTo($eSpan);
+
+									var $eLabel = $("<label>", {
+										class: "radio-inline",
+										text: j+1
+									});
+
+									if( isCheckedAlready && j==(listToBeKeptPpl[index][indexOfCheckedList].score-1) ){
+										$("<input>", {
+											type: "radio",
+											name: allData[index].firstname+tmpCut[0]+"Rating",
+											value: j+1,
+											checked: "checked"
+										}).appendTo($eLabel);
+
+										$eLabel.appendTo($eSpan);
+									} else {
+										$("<input>", {
+											type: "radio",
+											name: allData[index].firstname+tmpCut[0]+"Rating",
+											value: j+1
+										}).appendTo($eLabel);
+										$eLabel.appendTo($eSpan);
+									}
 								}
 							});
 						}
@@ -183,6 +296,7 @@ function init () {
 	for(var i=0; i<defaultEval.length; i++){
 		var tmpL = defaultEval[i].innerHTML;
 		var tmpCut = tmpL.split("<");
+		// tmpCut[0] = tmpCut[0].replace(/\s+/g, '');
 		defaultEvals.push(tmpCut[0]);
 	}
 
@@ -226,7 +340,8 @@ function init () {
 			// Create div as Grid, by specific className to use in CSS
 			// Then append to sdiv_1 (Grid div)
 			var $sdiv_2 = $("<div/>", {
-				class: "col-xs-12 col-sm-6 col-lg-8 eval_scores"
+				class: "col-xs-12 col-sm-6 col-lg-8 eval_scores",
+				id: val.netid + "RankingDiv"
 			}).appendTo(studentRow);
 
 			// For each eval element, create ranking dots
@@ -234,23 +349,42 @@ function init () {
 
 				// Create li element, and assign text, eg Fabrication
 				// Then append to the Div
-				var $eLi = $("<li>").text(defaultEvals[i]).appendTo($sdiv_2);
+				// v.1
+				// var $eLi = $("<li>").text(defaultEvals[i]).appendTo($sdiv_2);
+				// v.2
+				var $eLi = $("<li>", {
+					text: defaultEvals[i],
+					class: defaultEvals[i]
+				}).appendTo($sdiv_2);
 
 				// Create span element, to restore all the ranking inputs
 				// Then append to li
+				// v.1
 				var $eSpan = $("<span>",{
 					class: "star-rating"
 				}).appendTo($eLi);
+
+				// v.2
+				// var $eLabel = $("<label>", {
+				// 	class: "radio-inline"
+				// }).appendTo($eLi);
 
 				// To create FIVE ranking dots for each element
 				// Create input element
 				// And assign specific name, eg Laura+Fabrication+Rating, so FIVE dots are in a group
 				for(var j=0; j<5; j++){
+					var $eLabel = $("<label>", {
+						class: "radio-inline",
+						text: j+1
+					});
+
 					$("<input>", {
 						type: "radio",
 						name: val.firstname+defaultEvals[i]+"Rating",
 						value: j+1
-					}).appendTo($eSpan);
+					}).appendTo($eLabel);
+
+					$eLabel.appendTo($eSpan);
 				}
 			}
 
@@ -262,10 +396,44 @@ function init () {
 
 			// Create textarea element
 			var $text = $("<textarea>",{
-				id: val.firstname+"TextMiddle",
-				placeholder: "General feedback and opportunities to " + val.firstname + ".",
-				width: "80%",
-				height: "5em"
+				id: val.netid+"TextMiddle",
+				placeholder: "Put down some \"Opportunities\" to " + val.firstname + ".",
+				// width: "80%",
+				// height: "5em",
+				class: "form-control",
+				rows: "6"
+			}).appendTo($sdiv_3);
+
+			var $butnS = $("<button>",{
+				id: val.firstname+"SaveButton",
+				class: "btn btn-default btnSS",
+				text: "Save",
+				click:  function(){
+					   		console.log("save data of " + val.firstname + "!");
+					    }
+			}).appendTo($sdiv_3);
+
+			var $butnE = $("<button>",{
+				id: val.netid+"EmailButton",
+				class: "btn btn-default btnSS",
+				text: "Send Email",
+				click:  function(){
+							//v.1
+							// var mailto_link = "mailto:" + "linkinmonkey@gmail.com" + "?subject=Feedback on " + allData[0].title + "&body=" + $("#textStart").val();
+							// // window.location.href = "mailto:linkinmonkey@gmail.com?subject=Feedback on " + allData[0].title;
+							// // open new window
+							// window.open(mailto_link,'emailWindow');
+
+							//v.2
+							// reference: http://email.about.com/library/misc/blmailto_encoder.htm
+							var infoObj = {
+								email: val.netid + "@nyu.edu",
+								name: val.firstname,
+								netid: val.netid,
+								course: val.title
+							};
+							makeMailto( infoObj );
+						}
 			}).appendTo($sdiv_3);
 
 			// Append studentRow (of each student), to studentsHolder (for all student)
@@ -282,6 +450,121 @@ function animate() {
 
 function update() {
 
+}
+
+var strMailto, hasQ;
+function addField(fieldName, formElement, encode) {
+	if (formElement != "")
+	{
+		if (hasQ)
+			strMailto += "&";
+		else
+		{
+			strMailto += "?";
+			hasQ = true;
+		}
+		strMailto += fieldName + "=";
+		if (encode)
+			strMailto += encodeURIComponent(formElement);
+		else
+			strMailto += formElement;
+	}
+}
+
+function makeMailto( _infoObj ) {
+
+	// SAVE IMAGE, using html2Canvas library
+	// Ref: http://jsfiddle.net/AbdiasSoftware/7PRNN/
+	var _id = _infoObj.netid;
+	var whatToGrab = "#"+_id+"RankingDiv";
+	/*
+	html2canvas($(whatToGrab), {
+		// $("#"+_infoObj.netid+"RankingDiv")
+        onrendered: function(canvas) {
+            // document.body.appendChild(canvas);
+
+            var dataUrl = canvas.toDataURL("image/png");
+            dataUrlObject[_id] = dataUrl;
+
+		    var imageFoo = document.createElement('img');
+			imageFoo.src = dataUrl;
+			// document.body.appendChild(imageFoo);
+
+			// Download IMG
+			downloadURI(dataUrl, _infoObj.name + "Ranking" + _infoObj.course + ".png");
+        }
+    });
+	*/
+
+	// Compose Email!
+	if ( $("#textStart").val() == "" || $("#textEnd").val() == "" || $("#"+_id+"TextMiddle").val() == "" )	{
+		vex.dialog.confirm({
+			message: 'Did you forget to put down what do you want to say to the student?',
+			buttons: [
+				$.extend({}, vex.dialog.buttons.YES, {
+					text: 'No I didn\'t.' 
+				}),
+				$.extend({}, vex.dialog.buttons.NO, {
+					text: 'I forgot.'
+				})
+			],
+			callback: function(value) {
+				console.log(value);
+				if(value==false)
+					return;
+				else{
+					// Capture & Save image
+					html2canvas($(whatToGrab), {
+						// $("#"+_infoObj.netid+"RankingDiv")
+				        onrendered: function(canvas) {
+				            // document.body.appendChild(canvas);
+
+				            var dataUrl = canvas.toDataURL("image/png");
+				            dataUrlObject[_id] = dataUrl;
+
+						    var imageFoo = document.createElement('img');
+							imageFoo.src = dataUrl;
+							// document.body.appendChild(imageFoo);
+
+							// Download IMG
+							downloadURI(dataUrl, _infoObj.name + "Ranking" + _infoObj.course + ".png");
+				        }
+				    });
+
+				    // Compose Email
+					strMailto = "mailto:";
+					strMailto += _infoObj.email;
+					hasQ = false;
+					addField("subject", "Feedback on " + allData[0].title, true);
+					var emailBody = "Hi "
+									+ _infoObj.name
+									+ ",\n\n"
+									+ $("#textStart").val()
+									+ "\n\n"
+									+ "Here's your objective scores:\n"
+									+ "(Replace this by inserting the \"" + _infoObj.name + "Ranking" + _infoObj.course + ".png\" image you just saved.)"
+									+ "\n\n"
+									+ $("#"+_id+"TextMiddle").val()
+									+ "\n\n"
+									+ $("#textEnd").val()
+									+ "\n\nWarmest,\nLaura";
+
+					addField("body", emailBody, true);
+
+					setTimeout(function(){
+						window.open(strMailto, 'emailWindow');
+					},500);
+				}
+			}
+		});
+	}
+}
+
+function downloadURI(uri, name) {
+	var link = document.createElement("a");
+	link.download = name;
+	link.href = uri;
+	link.click();
 }
 
 function byId(_id) {
