@@ -1,4 +1,7 @@
-var allData;
+var allData, allTeacherData;
+
+var allTeachers = [], teacherStuff = {};
+var ultimateSectionID;
 
 var courseN, teacherN, courseT, courseNum;
 var studentsHolder;
@@ -11,11 +14,118 @@ var evalScores, evalScoreLists=[];
 var listToBeKeptPpl=[], listToBeKept=[];
 var dataUrlObject={};
 
+var readyToLaunch = false;
 
 ////////////////////////////////////////////////
 
-init();
-animate();
+superInit();
+// animate();
+
+function superInit() {
+	$.getJSON("data/section2.json", function(data){
+		allTeacherData = data;
+		// console.log(data[0]);
+		$.each(data, function(key, val){
+			var _netid = val.netid;
+			if( !teacherStuff[_netid] ){
+
+				var classes = [];
+				var classObj = {};
+				classObj.section_id = val.section_id;
+				classObj.name = val.title;
+				classes.push(classObj);
+
+				var detailObj = {};
+				detailObj.firstname = val.firstname;
+				detailObj.lastname = val.lastname;
+				detailObj.classes = classes;
+
+				teacherStuff[_netid] = detailObj;
+			} else {
+				var classObj = {};
+				classObj.section_id = val.section_id;
+				classObj.name = val.title;
+
+				teacherStuff[_netid].classes.push(classObj);
+			}
+		});
+	});
+
+	// VEX_DIALOG
+	// For instructors to LogIn (TO-DO)
+		vex.defaultOptions.className = 'vex-theme-wireframe';
+		doLoginDialog();
+
+	byId('login').onclick = function() {
+		if(readyToLaunch){
+			vex.dialog.alert("You've already logged in!");
+		} else {
+			doLoginDialog();
+		}
+	}
+}
+
+function doLoginDialog() {
+	vex.dialog.open({
+		message: "Enter your netId and password:",
+		input: "<input name=\"netId\" type=\"text\" placeholder=\"netId\" required />\n<input name=\"lastname\" type=\"password\" placeholder=\"Last Name\" required />",
+		buttons: [
+			$.extend({}, vex.dialog.buttons.YES, {
+				text: "Login"
+			}),
+			$.extend({}, vex.dialog.buttons.NO, {
+				text: "Back"
+			})
+		],
+		callback: function(data) {
+			if(data===false){
+				vex.dialog.alert("See you later!");
+				return;
+			}
+			if( teacherStuff[data.netId].lastname == data.lastname ){
+				// v.0
+				// vex.dialog.alert("Good morning teacher " + data.lastname + ".");
+				// readyToLaunch = true;
+				// //
+				// init();
+
+				// v.1
+				// create input string!
+				var stringForSelect="<select id='selectClass'>";
+				for(var i=0; i<teacherStuff[data.netId].classes.length; i++){
+					stringForSelect += "<option value='" + teacherStuff[data.netId].classes[i].section_id + "'>" + teacherStuff[data.netId].classes[i].name + "</option>";
+				}
+				stringForSelect += "</select>";
+
+				vex.dialog.open({
+					message: "Hi teacher " + data.lastname + ", which class do you want to give feedback on?",
+					input: stringForSelect,
+					buttons: [
+						$.extend({}, vex.dialog.buttons.YES, {
+							text: "OK"
+						})
+						// $.extend({}, vex.dialog.buttons.NO, {
+						// 	text: "Back"
+						// })
+					],
+					callback: function(dataaa) {
+						if(dataaa===false){
+							vex.dialog.alert("See you later!");
+							return;
+						}
+						ultimateSectionID = $("#selectClass").val();
+						readyToLaunch = true;
+						//
+						init();
+					}
+				});
+			}else{
+				vex.dialog.alert("Oops. Are you sure you are whom you think you are?");
+				return;
+			}
+		}
+	});
+}
 
 function init () {
 
@@ -29,28 +139,7 @@ function init () {
 		// get all the eval ranking of all the students
 		evalScores = byClass("eval_scores");
 
-	// VEX_DIALOG
-	// For instructors to LogIn (TO-DO)
-		vex.defaultOptions.className = 'vex-theme-wireframe';
-		vex.dialog.open({
-			message: "Enter your netId and password:",
-			input: "<input name=\"netId\" type=\"text\" placeholder=\"netId\" required />\n<input name=\"password\" type=\"password\" placeholder=\"Password\" required />",
-			buttons: [
-				$.extend({}, vex.dialog.buttons.YES, {
-					text: "Login"
-				}),
-				$.extend({}, vex.dialog.buttons.NO, {
-					text: "Back"
-				})
-			],
-			callback: function(data) {
-				if(data===false){
-					vex.dialog.alert("See you next time.");
-					return;
-				}
-				vex.dialog.alert("Good morning teacher " + data.netId + ".");
-			}
-		});
+	
 
 	// SORTABLE_DRAGGING
 	// The ranking things at the top of the page
@@ -301,7 +390,11 @@ function init () {
 	}
 
 	// read JSON
-	$.getJSON("data/section.json", function(data){
+	// v.1 from static file
+	// v.2 from url (Dan O)
+	var jsonURL = "https://itp.nyu.edu/registration/feedback/feedback.php?action=list_students&section_id=" + ultimateSectionID + "&secret_key=X7kdsjafoeTRD6DYY76TFDKU6T6HGGDFgd";
+	// var jsonURL = "data/section.json";
+	$.getJSON( jsonURL, function(data){
 		allData = data;
 		// console.log(data[0]);
 
