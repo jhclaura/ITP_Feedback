@@ -82,6 +82,10 @@ function doLoginDialog() {
 				vex.dialog.alert("See you later!");
 				return;
 			}
+			if (!teacherStuff[data.netId]) {
+				vex.dialog.alert("Oops. Are you sure you are whom you think you are?");
+				return;
+			}
 			if( teacherStuff[data.netId].lastname == data.lastname ){
 				// v.0
 				// vex.dialog.alert("Good morning teacher " + data.lastname + ".");
