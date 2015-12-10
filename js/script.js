@@ -82,7 +82,22 @@ function doLoginDialog() {
 				vex.dialog.alert("See you later!");
 				return;
 			}
-			if( teacherStuff[data.netId].lastname == data.lastname ){
+			if (!teacherStuff[data.netId]) {
+				// vex.dialog.alert("Oops. Are you sure you are whom you think you are?");
+				vex.dialog.open({
+					message: "Oops. Are you sure you are whom you think you are?",
+					buttons: [
+						$.extend({}, vex.dialog.buttons.YES, {
+							text: 'Retry' 
+						})
+					],
+					callback: function(value) {
+						doLoginDialog();
+						return;
+					}
+				});				
+			}
+			else if( teacherStuff[data.netId].lastname == data.lastname ){
 				// v.0
 				// vex.dialog.alert("Good morning teacher " + data.lastname + ".");
 				// readyToLaunch = true;
@@ -121,6 +136,7 @@ function doLoginDialog() {
 				});
 			}else{
 				vex.dialog.alert("Oops. Are you sure you are whom you think you are?");
+				doLoginDialog();
 				return;
 			}
 		}
