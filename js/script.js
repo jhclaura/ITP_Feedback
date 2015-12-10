@@ -97,7 +97,7 @@ function doLoginDialog() {
 					}
 				});				
 			}
-			if( teacherStuff[data.netId].lastname == data.lastname ){
+			else if( teacherStuff[data.netId].lastname == data.lastname ){
 				// v.0
 				// vex.dialog.alert("Good morning teacher " + data.lastname + ".");
 				// readyToLaunch = true;
