@@ -84,6 +84,7 @@ function doLoginDialog() {
 			}
 			if (!teacherStuff[data.netId]) {
 				vex.dialog.alert("Oops. Are you sure you are whom you think you are?");
+				doLoginDialog();
 				return;
 			}
 			if( teacherStuff[data.netId].lastname == data.lastname ){
@@ -125,6 +126,7 @@ function doLoginDialog() {
 				});
 			}else{
 				vex.dialog.alert("Oops. Are you sure you are whom you think you are?");
+				doLoginDialog();
 				return;
 			}
 		}
