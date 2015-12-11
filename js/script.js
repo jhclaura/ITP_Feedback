@@ -165,7 +165,8 @@ function init () {
 		// get all the eval ranking of all the students
 		evalScores = byClass("eval_scores");
 
-	
+	$("#all_textStart").change(changedStuff);
+	$("#all_textEnd").change(changedStuff);
 
 	// SORTABLE_DRAGGING
 	// The ranking things at the top of the page
@@ -381,21 +382,21 @@ function init () {
 
 									if( isCheckedAlready && j==(listToBeKeptPpl[index][indexOfCheckedList].score-1) ){
 										$("<input>", {
-											id: allData[index].netid + "_" + tmpCut[0],
+											class: allData[index].netid + "_" + tmpCut[0],
 											type: "radio",
 											name: allData[index].firstname+tmpCut[0]+"Rating",
 											value: j+1,
 											checked: "checked"
-										}).change( changedStuff ).appendTo($eLabel);
+										}).change( changedStuffRadio ).appendTo($eLabel);
 
 										$eLabel.appendTo($eSpan);
 									} else {
 										$("<input>", {
-											id: allData[index].netid + "_" + tmpCut[0],
+											class: allData[index].netid + "_" + tmpCut[0],
 											type: "radio",
 											name: allData[index].firstname+tmpCut[0]+"Rating",
 											value: j+1
-										}).change( changedStuff ).appendTo($eLabel);
+										}).change( changedStuffRadio ).appendTo($eLabel);
 										$eLabel.appendTo($eSpan);
 									}
 								}
@@ -505,11 +506,11 @@ function init () {
 					});
 
 					$("<input>", {
-						id: val.netid + "_" + defaultEvals[i],
+						class: val.netid + "_" + defaultEvals[i],
 						type: "radio",
 						name: val.firstname+defaultEvals[i]+"Rating",
 						value: j+1
-					}).change(changedStuff).appendTo($eLabel);
+					}).change( changedStuffRadio ).appendTo($eLabel);
 
 					$eLabel.appendTo($eSpan);
 				}
@@ -568,8 +569,36 @@ function init () {
 			// Append studentRow (of each student), to studentsHolder (for all student)
 			studentsHolder.appendChild(studentRow);
 		});
-	});
-		
+
+		// Get restored data!
+		var getParams = {
+			action: 'get_feedback',
+			section_id: theSection_id,
+			secret_key: secret_key
+		}
+		$.post(server_address, getParams, gotExistingFeedback, "json");
+	});	
+}
+
+function gotExistingFeedback(existing_feedback) {
+	for (var i = 0; i < existing_feedback.length; i++) {
+		var id = existing_feedback[i].to_netid + "_" + existing_feedback[i].type_of_feedback;
+		var element = $("#" + id);
+		console.log(element);
+
+		if (element == null) {
+			console.log("I am sorry but I am unfamiliar with that type of feedback");
+		}
+		else if(element.length>0) {
+			var uncodingData = unescape(existing_feedback[i].feedback);
+			element[0].value = uncodingData;
+		}
+		else if(element.length==0){
+			var classElement = $("." + id);
+			if(classElement.length>0)
+				classElement[ existing_feedback[i].feedback-1 ].checked = "checked";
+		}
+	}
 }
 
 function animate() {
@@ -601,7 +630,36 @@ function changedStuff() {
 		secret_key: secret_key
 	}
 	// console.log(params);
-	
+
+	// TEST Un_code
+	// var test = unescape(thisGuy.feedback);
+	// console.log( test );
+
+	// Post to Server!!
+	$.post(server_address, params, savedItResponse, "json");
+}
+// For radio input
+function changedStuffRadio() {
+	// console.log(this);
+
+	var parts = this.className.split("_")
+	console.log(parts);
+	var my_json = [];
+  	var thisGuy = {};
+  	thisGuy.section_id = theSection_id;
+	thisGuy.from_netid = from_netid;
+	thisGuy.to_netid = parts[0];
+	thisGuy.type_of_feedback = parts[1];
+	thisGuy.feedback = escape( this.value );
+	my_json.push(thisGuy);
+	var params = {
+		data: my_json,
+		action: 'give_feedback',
+		section_id: theSection_id,
+		secret_key: secret_key
+	}
+	// console.log(params);
+
 	// TEST Un_code
 	// var test = unescape(thisGuy.feedback);
 	// console.log( test );
@@ -659,7 +717,7 @@ function makeMailto( _infoObj ) {
 	*/
 
 	// Compose Email!
-	if ( $("#textStart").val() == "" || $("#textEnd").val() == "" || $("#"+_id+"_TextMiddle").val() == "" )	{
+	if ( $("#all_textStart").val() == "" || $("#all_textEnd").val() == "" || $("#"+_id+"_TextMiddle").val() == "" )	{
 		vex.dialog.confirm({
 			message: 'Did you forget to put down what do you want to say to the student?',
 			buttons: [
@@ -701,15 +759,16 @@ function makeMailto( _infoObj ) {
 					var emailBody = "Hi "
 									+ _infoObj.name
 									+ ",\n\n"
-									+ $("#textStart").val()
+									+ $("#all_textStart").val()
 									+ "\n\n"
 									+ "Here's your objective scores:\n"
 									+ "(Replace this by inserting the \"" + _infoObj.name + "Ranking" + _infoObj.course + ".png\" image you just saved.)"
 									+ "\n\n"
 									+ $("#"+_id+"_TextMiddle").val()
 									+ "\n\n"
-									+ $("#textEnd").val()
-									+ "\n\nWarmest,\nLaura";
+									+ $("#all_textEnd").val()
+									+ "\n\nWarmest,\n"
+									+ teacherStuff[from_netid].firstname + " " + teacherStuff[from_netid].lastname;
 
 					addField("body", emailBody, true);
 
