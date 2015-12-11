@@ -16,13 +16,20 @@ var dataUrlObject={};
 
 var readyToLaunch = false;
 
+// DanO
+var theSection_id, from_netid, to_netid;
+var secret_key = "X7kdsjafoeTRD6DYY76TFDKU6T6HGGDFgd";
+var server_address = "http://itp.nyu.edu/registration/feedback/feedback.php";
+//
+
 ////////////////////////////////////////////////
 
 superInit();
 // animate();
 
 function superInit() {
-	$.getJSON("data/section2.json", function(data){
+	$.getJSON(server_address + "?action=list_sections&semester=Fall&year=2015&secret_key=" + secret_key, function(data){
+		
 		allTeacherData = data;
 		// console.log(data[0]);
 		$.each(data, function(key, val){
@@ -67,7 +74,7 @@ function superInit() {
 
 function doLoginDialog() {
 	vex.dialog.open({
-		message: "Enter your netId and password:",
+		message: "Enter your netId and last name:",
 		input: "<input name=\"netId\" type=\"text\" placeholder=\"netId\" required />\n<input name=\"lastname\" type=\"password\" placeholder=\"Last Name\" required />",
 		buttons: [
 			$.extend({}, vex.dialog.buttons.YES, {
@@ -98,6 +105,8 @@ function doLoginDialog() {
 				});				
 			}
 			else if( teacherStuff[data.netId].lastname == data.lastname ){
+				from_netid = data.netId;
+
 				// v.0
 				// vex.dialog.alert("Good morning teacher " + data.lastname + ".");
 				// readyToLaunch = true;
@@ -129,6 +138,7 @@ function doLoginDialog() {
 							return;
 						}
 						ultimateSectionID = $("#selectClass").val();
+						theSection_id = ultimateSectionID;
 						readyToLaunch = true;
 						//
 						init();
@@ -371,19 +381,21 @@ function init () {
 
 									if( isCheckedAlready && j==(listToBeKeptPpl[index][indexOfCheckedList].score-1) ){
 										$("<input>", {
+											id: allData[index].netid + "_" + tmpCut[0],
 											type: "radio",
 											name: allData[index].firstname+tmpCut[0]+"Rating",
 											value: j+1,
 											checked: "checked"
-										}).appendTo($eLabel);
+										}).change( changedStuff ).appendTo($eLabel);
 
 										$eLabel.appendTo($eSpan);
 									} else {
 										$("<input>", {
+											id: allData[index].netid + "_" + tmpCut[0],
 											type: "radio",
 											name: allData[index].firstname+tmpCut[0]+"Rating",
 											value: j+1
-										}).appendTo($eLabel);
+										}).change( changedStuff ).appendTo($eLabel);
 										$eLabel.appendTo($eSpan);
 									}
 								}
@@ -408,9 +420,14 @@ function init () {
 	// read JSON
 	// v.1 from static file
 	// v.2 from url (Dan O)
-	var jsonURL = "https://itp.nyu.edu/registration/feedback/feedback.php?action=list_students&section_id=" + ultimateSectionID + "&secret_key=X7kdsjafoeTRD6DYY76TFDKU6T6HGGDFgd";
+	//var jsonURL = "https://itp.nyu.edu/registration/feedback/feedback.php?action=list_students&section_id=" + ultimateSectionID + "&secret_key=X7kdsjafoeTRD6DYY76TFDKU6T6HGGDFgd";
 	// var jsonURL = "data/section.json";
-	$.getJSON( jsonURL, function(data){
+
+	function list_student() {
+		return server_address + "?action=list_students&section_id=" + theSection_id + "&secret_key=" + secret_key;
+	}
+
+	$.getJSON( list_student(), function(data){
 		allData = data;
 		// console.log(data[0]);
 
@@ -488,10 +505,11 @@ function init () {
 					});
 
 					$("<input>", {
+						id: val.netid + "_" + defaultEvals[i],
 						type: "radio",
 						name: val.firstname+defaultEvals[i]+"Rating",
 						value: j+1
-					}).appendTo($eLabel);
+					}).change(changedStuff).appendTo($eLabel);
 
 					$eLabel.appendTo($eSpan);
 				}
@@ -505,22 +523,24 @@ function init () {
 
 			// Create textarea element
 			var $text = $("<textarea>",{
-				id: val.netid+"TextMiddle",
+				id: val.netid+"_TextMiddle",
 				placeholder: "Put down some \"Opportunities\" to " + val.firstname + ".",
 				// width: "80%",
 				// height: "5em",
 				class: "form-control",
 				rows: "6"
-			}).appendTo($sdiv_3);
+			}).change(
+				changedStuff
+			).appendTo($sdiv_3);
 
-			var $butnS = $("<button>",{
-				id: val.firstname+"SaveButton",
-				class: "btn btn-default btnSS",
-				text: "Save",
-				click:  function(){
-					   		console.log("save data of " + val.firstname + "!");
-					    }
-			}).appendTo($sdiv_3);
+			// var $butnS = $("<button>",{
+			// 	id: val.firstname+"SaveButton",
+			// 	class: "btn btn-default btnSS",
+			// 	text: "Save",
+			// 	click:  function(){
+			// 		   		console.log("save data of " + val.firstname + "!");
+			// 		    }
+			// }).appendTo($sdiv_3);
 
 			var $butnE = $("<button>",{
 				id: val.netid+"EmailButton",
@@ -559,6 +579,39 @@ function animate() {
 
 function update() {
 
+}
+
+// ref: DanO
+function changedStuff() {
+	//console.log(this);
+
+	var parts = this.id.split("_")
+	var my_json = [];
+  	var thisGuy = {};
+  	thisGuy.section_id = theSection_id;
+	thisGuy.from_netid = from_netid;
+	thisGuy.to_netid = parts[0];
+	thisGuy.type_of_feedback = parts[1];
+	thisGuy.feedback = escape( this.value );
+	my_json.push(thisGuy);
+	var params = {
+		data: my_json,
+		action: 'give_feedback',
+		section_id: theSection_id,
+		secret_key: secret_key
+	}
+	// console.log(params);
+	
+	// TEST Un_code
+	// var test = unescape(thisGuy.feedback);
+	// console.log( test );
+
+	// Post to Server!!
+	$.post(server_address, params, savedItResponse, "json");
+}
+
+function savedItResponse(response) {
+	// console.log(response);	
 }
 
 var strMailto, hasQ;
@@ -606,7 +659,7 @@ function makeMailto( _infoObj ) {
 	*/
 
 	// Compose Email!
-	if ( $("#textStart").val() == "" || $("#textEnd").val() == "" || $("#"+_id+"TextMiddle").val() == "" )	{
+	if ( $("#textStart").val() == "" || $("#textEnd").val() == "" || $("#"+_id+"_TextMiddle").val() == "" )	{
 		vex.dialog.confirm({
 			message: 'Did you forget to put down what do you want to say to the student?',
 			buttons: [
@@ -653,7 +706,7 @@ function makeMailto( _infoObj ) {
 									+ "Here's your objective scores:\n"
 									+ "(Replace this by inserting the \"" + _infoObj.name + "Ranking" + _infoObj.course + ".png\" image you just saved.)"
 									+ "\n\n"
-									+ $("#"+_id+"TextMiddle").val()
+									+ $("#"+_id+"_TextMiddle").val()
 									+ "\n\n"
 									+ $("#textEnd").val()
 									+ "\n\nWarmest,\nLaura";
