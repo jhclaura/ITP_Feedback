@@ -380,28 +380,49 @@ function init () {
 										text: j+1
 									});
 
-									if( isCheckedAlready && j==(listToBeKeptPpl[index][indexOfCheckedList].score-1) ){
-										$("<input>", {
-											class: allData[index].netid + "_" + tmpCut[0],
-											type: "radio",
-											name: allData[index].firstname+tmpCut[0]+"Rating",
-											value: j+1,
-											checked: "checked"
-										}).change( changedStuffRadio ).appendTo($eLabel);
+									// v.1
+									// create input radio with client_side history
+									// if( isCheckedAlready && j==(listToBeKeptPpl[index][indexOfCheckedList].score-1) ){
+									// 	$("<input>", {
+									// 		class: allData[index].netid + "_" + tmpCut[0],
+									// 		type: "radio",
+									// 		name: allData[index].firstname+tmpCut[0]+"Rating",
+									// 		value: j+1,
+									// 		checked: "checked"
+									// 	}).change( changedStuffRadio ).appendTo($eLabel);
 
-										$eLabel.appendTo($eSpan);
-									} else {
-										$("<input>", {
-											class: allData[index].netid + "_" + tmpCut[0],
-											type: "radio",
-											name: allData[index].firstname+tmpCut[0]+"Rating",
-											value: j+1
-										}).change( changedStuffRadio ).appendTo($eLabel);
-										$eLabel.appendTo($eSpan);
-									}
+									// 	$eLabel.appendTo($eSpan);
+									// } else {
+									// 	$("<input>", {
+									// 		class: allData[index].netid + "_" + tmpCut[0],
+									// 		type: "radio",
+									// 		name: allData[index].firstname+tmpCut[0]+"Rating",
+									// 		value: j+1
+									// 	}).change( changedStuffRadio ).appendTo($eLabel);
+									// 	$eLabel.appendTo($eSpan);
+									// }
+
+									// v.2
+									// create input radio with server_side history
+									$("<input>", {
+										class: allData[index].netid + "_" + tmpCut[0],
+										type: "radio",
+										name: allData[index].firstname+tmpCut[0]+"Rating",
+										value: j+1
+									}).change( changedStuffRadio ).appendTo($eLabel);
+									$eLabel.appendTo($eSpan);
 								}
 							});
 						}
+
+						// get existed radio feedback
+						var getParams = {
+							action: 'get_feedback',
+							section_id: theSection_id,
+							secret_key: secret_key
+						}
+						$.post(server_address, getParams, gotExistingRadioFeedback, "json");
+
 					}
 				}
 			});	
@@ -609,6 +630,27 @@ function gotExistingFeedback(existing_feedback) {
 					classElement2[ existing_feedback[i].feedback-1 ].checked = "checked";
 			}
 		}
+	}
+}
+
+function gotExistingRadioFeedback(existing_feedback) {
+	for (var i=0; i<existing_feedback.length; i++) {
+		var id = existing_feedback[i].to_netid + "_" + existing_feedback[i].type_of_feedback;
+		var classElement = $("." + id);
+		if(classElement.length>0)
+			classElement[ existing_feedback[i].feedback-1 ].checked = "checked";
+		else {
+			// className has Space
+			var sepID = id.split(" ");
+			var classNameWithSpace = "";
+			for(var j=0; j<sepID.length; j++){
+				classNameWithSpace += "." + sepID[j];
+			}
+			var classElement2 = $(classNameWithSpace);
+			if(classElement2.length>0)
+				classElement2[ existing_feedback[i].feedback-1 ].checked = "checked";
+		}
+
 	}
 }
 
