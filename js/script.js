@@ -584,7 +584,7 @@ function gotExistingFeedback(existing_feedback) {
 	for (var i = 0; i < existing_feedback.length; i++) {
 		var id = existing_feedback[i].to_netid + "_" + existing_feedback[i].type_of_feedback;
 		var element = $("#" + id);
-		console.log(element);
+		// console.log(element);
 
 		if (element == null) {
 			console.log("I am sorry but I am unfamiliar with that type of feedback");
@@ -597,6 +597,17 @@ function gotExistingFeedback(existing_feedback) {
 			var classElement = $("." + id);
 			if(classElement.length>0)
 				classElement[ existing_feedback[i].feedback-1 ].checked = "checked";
+			else {
+				// className has Space
+				var sepID = id.split(" ");
+				var classNameWithSpace = "";
+				for(var j=0; j<sepID.length; j++){
+					classNameWithSpace += "." + sepID[j];
+				}
+				var classElement2 = $(classNameWithSpace);
+				if(classElement2.length>0)
+					classElement2[ existing_feedback[i].feedback-1 ].checked = "checked";
+			}
 		}
 	}
 }
@@ -643,7 +654,7 @@ function changedStuffRadio() {
 	// console.log(this);
 
 	var parts = this.className.split("_")
-	console.log(parts);
+	// console.log(parts);
 	var my_json = [];
   	var thisGuy = {};
   	thisGuy.section_id = theSection_id;
@@ -658,11 +669,6 @@ function changedStuffRadio() {
 		section_id: theSection_id,
 		secret_key: secret_key
 	}
-	// console.log(params);
-
-	// TEST Un_code
-	// var test = unescape(thisGuy.feedback);
-	// console.log( test );
 
 	// Post to Server!!
 	$.post(server_address, params, savedItResponse, "json");
