@@ -584,7 +584,7 @@ function gotExistingFeedback(existing_feedback) {
 	for (var i = 0; i < existing_feedback.length; i++) {
 		var id = existing_feedback[i].to_netid + "_" + existing_feedback[i].type_of_feedback;
 		var element = $("#" + id);
-		console.log(element);
+		// console.log(element);
 
 		if (element == null) {
 			console.log("I am sorry but I am unfamiliar with that type of feedback");
