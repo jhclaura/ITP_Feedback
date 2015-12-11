@@ -28,12 +28,16 @@ superInit();
 // animate();
 
 function superInit() {
+	// Get all the data of teachers and their classes
 	$.getJSON(server_address + "?action=list_sections&semester=Fall&year=2015&secret_key=" + secret_key, function(data){
 		
 		allTeacherData = data;
 		// console.log(data[0]);
+
 		$.each(data, function(key, val){
+			// val --> Object
 			var _netid = val.netid;
+
 			if( !teacherStuff[_netid] ){
 
 				var classes = [];
@@ -602,7 +606,9 @@ function init () {
 }
 
 function gotExistingFeedback(existing_feedback) {
+
 	for (var i = 0; i < existing_feedback.length; i++) {
+
 		var id = existing_feedback[i].to_netid + "_" + existing_feedback[i].type_of_feedback;
 		var element = $("#" + id);
 		// console.log(element);
@@ -676,6 +682,7 @@ function changedStuff() {
 	thisGuy.type_of_feedback = parts[1];
 	thisGuy.feedback = escape( this.value );
 	my_json.push(thisGuy);
+
 	var params = {
 		data: my_json,
 		action: 'give_feedback',
