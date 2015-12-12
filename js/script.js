@@ -312,7 +312,7 @@ function init () {
 									&& listToBeKeptPpl[0][j].keep ) {
 									isCheckedAlready = true;
 									indexOfCheckedList = j;
-									console.log(currentEval[i].className + "is checked (first student): " + listToBeKeptPpl[0][j].score);
+									// console.log(currentEval[i].className + "is checked (first student): " + listToBeKeptPpl[0][j].score);
 								}
 							}
 
@@ -573,7 +573,7 @@ function init () {
 				class: "btn btn-default btnSS",
 				text: "Send Email",
 				click:  function(){
-							console.log("click!");
+							// console.log("click!");
 
 							//v.1
 							// var mailto_link = "mailto:" + "linkinmonkey@gmail.com" + "?subject=Feedback on " + allData[0].title + "&body=" + $("#textStart").val();
