@@ -28,12 +28,16 @@ superInit();
 // animate();
 
 function superInit() {
+	// Get all the data of teachers and their classes
 	$.getJSON(server_address + "?action=list_sections&semester=Fall&year=2015&secret_key=" + secret_key, function(data){
 		
 		allTeacherData = data;
 		// console.log(data[0]);
+
 		$.each(data, function(key, val){
+			// val --> Object
 			var _netid = val.netid;
+
 			if( !teacherStuff[_netid] ){
 
 				var classes = [];
@@ -569,6 +573,8 @@ function init () {
 				class: "btn btn-default btnSS",
 				text: "Send Email",
 				click:  function(){
+							console.log("click!");
+
 							//v.1
 							// var mailto_link = "mailto:" + "linkinmonkey@gmail.com" + "?subject=Feedback on " + allData[0].title + "&body=" + $("#textStart").val();
 							// // window.location.href = "mailto:linkinmonkey@gmail.com?subject=Feedback on " + allData[0].title;
@@ -602,7 +608,9 @@ function init () {
 }
 
 function gotExistingFeedback(existing_feedback) {
+
 	for (var i = 0; i < existing_feedback.length; i++) {
+
 		var id = existing_feedback[i].to_netid + "_" + existing_feedback[i].type_of_feedback;
 		var element = $("#" + id);
 		// console.log(element);
@@ -676,6 +684,7 @@ function changedStuff() {
 	thisGuy.type_of_feedback = parts[1];
 	thisGuy.feedback = escape( this.value );
 	my_json.push(thisGuy);
+
 	var params = {
 		data: my_json,
 		action: 'give_feedback',
@@ -777,55 +786,61 @@ function makeMailto( _infoObj ) {
 				})
 			],
 			callback: function(value) {
-				console.log(value);
+				// console.log(value);
 				if(value==false)
 					return;
 				else{
-					// Capture & Save image
-					html2canvas($(whatToGrab), {
-						// $("#"+_infoObj.netid+"RankingDiv")
-				        onrendered: function(canvas) {
-				            // document.body.appendChild(canvas);
-
-				            var dataUrl = canvas.toDataURL("image/png");
-				            dataUrlObject[_id] = dataUrl;
-
-						    var imageFoo = document.createElement('img');
-							imageFoo.src = dataUrl;
-							// document.body.appendChild(imageFoo);
-
-							// Download IMG
-							downloadURI(dataUrl, _infoObj.name + "Ranking" + _infoObj.course + ".png");
-				        }
-				    });
-
-				    // Compose Email
-					strMailto = "mailto:";
-					strMailto += _infoObj.email;
-					hasQ = false;
-					addField("subject", "Feedback on " + allData[0].title, true);
-					var emailBody = "Hi "
-									+ _infoObj.name
-									+ ",\n\n"
-									+ $("#all_textStart").val()
-									+ "\n\n"
-									+ "Here's your objective scores:\n"
-									+ "(Replace this by inserting the \"" + _infoObj.name + "Ranking" + _infoObj.course + ".png\" image you just saved.)"
-									+ "\n\n"
-									+ $("#"+_id+"_TextMiddle").val()
-									+ "\n\n"
-									+ $("#all_textEnd").val()
-									+ "\n\nWarmest,\n"
-									+ teacherStuff[from_netid].firstname + " " + teacherStuff[from_netid].lastname;
-
-					addField("body", emailBody, true);
-
-					setTimeout(function(){
-						window.open(strMailto, 'emailWindow');
-					},500);
+					makeTheEmail();
 				}
 			}
 		});
+	} else {
+		makeTheEmail();
+	}
+
+	function makeTheEmail() {
+		// Capture & Save image
+		html2canvas($(whatToGrab), {
+			// $("#"+_infoObj.netid+"RankingDiv")
+	        onrendered: function(canvas) {
+	            // document.body.appendChild(canvas);
+
+	            var dataUrl = canvas.toDataURL("image/png");
+	            dataUrlObject[_id] = dataUrl;
+
+			    var imageFoo = document.createElement('img');
+				imageFoo.src = dataUrl;
+				// document.body.appendChild(imageFoo);
+
+				// Download IMG
+				downloadURI(dataUrl, _infoObj.name + "Ranking" + _infoObj.course + ".png");
+	        }
+	    });
+
+	    // Compose Email
+		strMailto = "mailto:";
+		strMailto += _infoObj.email;
+		hasQ = false;
+		addField("subject", "Feedback on " + allData[0].title, true);
+		var emailBody = "Hi "
+						+ _infoObj.name
+						+ ",\n\n"
+						+ $("#all_textStart").val()
+						+ "\n\n"
+						+ "Here's your objective scores:\n"
+						+ "(Replace this by inserting the \"" + _infoObj.name + "Ranking" + _infoObj.course + ".png\" image you just saved.)"
+						+ "\n\n"
+						+ $("#"+_id+"_TextMiddle").val()
+						+ "\n\n"
+						+ $("#all_textEnd").val()
+						+ "\n\nWarmest,\n"
+						+ teacherStuff[from_netid].firstname + " " + teacherStuff[from_netid].lastname;
+
+		addField("body", emailBody, true);
+
+		setTimeout(function(){
+			window.open(strMailto, 'emailWindow');
+		},500);
 	}
 }
 
