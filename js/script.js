@@ -573,6 +573,8 @@ function init () {
 				class: "btn btn-default btnSS",
 				text: "Send Email",
 				click:  function(){
+							console.log("click!");
+
 							//v.1
 							// var mailto_link = "mailto:" + "linkinmonkey@gmail.com" + "?subject=Feedback on " + allData[0].title + "&body=" + $("#textStart").val();
 							// // window.location.href = "mailto:linkinmonkey@gmail.com?subject=Feedback on " + allData[0].title;
@@ -784,55 +786,61 @@ function makeMailto( _infoObj ) {
 				})
 			],
 			callback: function(value) {
-				console.log(value);
+				// console.log(value);
 				if(value==false)
 					return;
 				else{
-					// Capture & Save image
-					html2canvas($(whatToGrab), {
-						// $("#"+_infoObj.netid+"RankingDiv")
-				        onrendered: function(canvas) {
-				            // document.body.appendChild(canvas);
-
-				            var dataUrl = canvas.toDataURL("image/png");
-				            dataUrlObject[_id] = dataUrl;
-
-						    var imageFoo = document.createElement('img');
-							imageFoo.src = dataUrl;
-							// document.body.appendChild(imageFoo);
-
-							// Download IMG
-							downloadURI(dataUrl, _infoObj.name + "Ranking" + _infoObj.course + ".png");
-				        }
-				    });
-
-				    // Compose Email
-					strMailto = "mailto:";
-					strMailto += _infoObj.email;
-					hasQ = false;
-					addField("subject", "Feedback on " + allData[0].title, true);
-					var emailBody = "Hi "
-									+ _infoObj.name
-									+ ",\n\n"
-									+ $("#all_textStart").val()
-									+ "\n\n"
-									+ "Here's your objective scores:\n"
-									+ "(Replace this by inserting the \"" + _infoObj.name + "Ranking" + _infoObj.course + ".png\" image you just saved.)"
-									+ "\n\n"
-									+ $("#"+_id+"_TextMiddle").val()
-									+ "\n\n"
-									+ $("#all_textEnd").val()
-									+ "\n\nWarmest,\n"
-									+ teacherStuff[from_netid].firstname + " " + teacherStuff[from_netid].lastname;
-
-					addField("body", emailBody, true);
-
-					setTimeout(function(){
-						window.open(strMailto, 'emailWindow');
-					},500);
+					makeTheEmail();
 				}
 			}
 		});
+	} else {
+		makeTheEmail();
+	}
+
+	function makeTheEmail() {
+		// Capture & Save image
+		html2canvas($(whatToGrab), {
+			// $("#"+_infoObj.netid+"RankingDiv")
+	        onrendered: function(canvas) {
+	            // document.body.appendChild(canvas);
+
+	            var dataUrl = canvas.toDataURL("image/png");
+	            dataUrlObject[_id] = dataUrl;
+
+			    var imageFoo = document.createElement('img');
+				imageFoo.src = dataUrl;
+				// document.body.appendChild(imageFoo);
+
+				// Download IMG
+				downloadURI(dataUrl, _infoObj.name + "Ranking" + _infoObj.course + ".png");
+	        }
+	    });
+
+	    // Compose Email
+		strMailto = "mailto:";
+		strMailto += _infoObj.email;
+		hasQ = false;
+		addField("subject", "Feedback on " + allData[0].title, true);
+		var emailBody = "Hi "
+						+ _infoObj.name
+						+ ",\n\n"
+						+ $("#all_textStart").val()
+						+ "\n\n"
+						+ "Here's your objective scores:\n"
+						+ "(Replace this by inserting the \"" + _infoObj.name + "Ranking" + _infoObj.course + ".png\" image you just saved.)"
+						+ "\n\n"
+						+ $("#"+_id+"_TextMiddle").val()
+						+ "\n\n"
+						+ $("#all_textEnd").val()
+						+ "\n\nWarmest,\n"
+						+ teacherStuff[from_netid].firstname + " " + teacherStuff[from_netid].lastname;
+
+		addField("body", emailBody, true);
+
+		setTimeout(function(){
+			window.open(strMailto, 'emailWindow');
+		},500);
 	}
 }
 
