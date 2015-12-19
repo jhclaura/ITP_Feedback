@@ -281,7 +281,7 @@ function init () {
 						&& listToBeKeptPpl[0][j].keep ) {
 						isCheckedAlready = true;
 						indexOfCheckedList = j;
-						console.log(currentEval[i].className + "is checked (first student): " + listToBeKeptPpl[0][j].score);
+						// console.log(currentEval[i].className + "is checked (first student): " + listToBeKeptPpl[0][j].score);
 					}
 				}
 
@@ -545,7 +545,7 @@ function init () {
 						    	var tempEvalObj = {};
 						    	tempEvalObj.name = evalList[i].className;
 						    	tempEvalObj.score = $("[name='"+val.firstname+tempEvalObj.name+"Rating']:checked").val();
-						    	console.log(tempEvalObj.score);
+						    	// console.log(tempEvalObj.score);
 						    	tempEvals.push(tempEvalObj);
 						    }
 
@@ -578,7 +578,7 @@ function init () {
 				class: "btn btn-default btnSS",
 				text: "Send Email",
 				click:  function(){
-							console.log("click!");
+							// console.log("click!");
 							 $("#"+val.netid+"EmailButton").css("background-color","#7be6d4");
 							//v.1
 							// var mailto_link = "mailto:" + "linkinmonkey@gmail.com" + "?subject=Feedback on " + allData[0].title + "&body=" + $("#textStart").val();
@@ -630,7 +630,7 @@ function gotExistingFeedback(existing_feedback) {
 		else if(element.length==0){
 			var classElement = $("." + id);
 			if(classElement.length>0){
-				console.log(existing_feedback[i].to_netid);
+				// console.log(existing_feedback[i].to_netid);
 				classElement[ existing_feedback[i].feedback ].checked = "checked";
 			}
 			else {
