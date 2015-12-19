@@ -10,6 +10,7 @@ var defaultEvals=[];
 var el, evaluateList;
 var name, pw;
 var evalScores, evalScoreLists=[];
+var rankingTexts = ["Needs Improvement", "Satisfactory", "Excellent", "N/A"];
 
 var listToBeKeptPpl=[], listToBeKept=[];
 var dataUrlObject={};
@@ -67,12 +68,14 @@ function superInit() {
 		vex.defaultOptions.className = 'vex-theme-wireframe';
 		doLoginDialog();
 
-	byId('login').onclick = function() {
-		if(readyToLaunch){
-			vex.dialog.alert("You've already logged in!");
-		} else {
-			doLoginDialog();
-		}
+	byId('saveFake').onclick = function() {
+		// if(readyToLaunch){
+		// 	vex.dialog.alert("You've already logged in!");
+		// } else {
+		// 	doLoginDialog();
+		// }
+
+		vex.dialog.alert("All data are restored in server!");
 	}
 }
 
@@ -83,14 +86,22 @@ function doLoginDialog() {
 		buttons: [
 			$.extend({}, vex.dialog.buttons.YES, {
 				text: "Login"
-			}),
-			$.extend({}, vex.dialog.buttons.NO, {
-				text: "Back"
 			})
 		],
 		callback: function(data) {
 			if(data===false){
-				vex.dialog.alert("See you later!");
+				// vex.dialog.alert("See you later!");
+				vex.dialog.open({
+					message: "Please enter your netId and last name to proceed!",
+					buttons: [
+						$.extend({}, vex.dialog.buttons.YES, {
+							text: "Ok"
+						})
+					],
+					callback: function(data) {
+						doLoginDialog();
+					}
+				});
 				return;
 			}
 			if (!teacherStuff[data.netId]) {
@@ -219,217 +230,171 @@ function init () {
 		// If clicked, all the students' elements will be updated as same as the TOP one
 		byId('update_skill').onclick = function() {
 
-			// Alert to ask for confirmation before update, and wipe out the ranking history (if any)
-			vex.dialog.confirm({
-				message: 'This will reset the scaling history. Are you absolutely sure to do this?',
-				callback: function(value) {
-					// If No then do nothing
-					if(!value) {
-						return;
+			// Get the evaluation element object at the TOP
+			var currentEval = evaluateList.el.getElementsByTagName("li");
+
+			listToBeKeptPpl = [];
+			// listToBeKept = [];
+
+			// Detection for DELETE
+			// - using all first student
+			for(var k=0; k<evalScores.length; k++){
+
+				listToBeKept = [];
+				for(var i=0; i<evalScores[k].children.length; i++){
+					var keepObj = {};
+					keepObj['keep'] = false;
+					keepObj['name'] = evalScores[k].children[i].className;
+					keepObj['score'] = -1;
+					listToBeKept.push(keepObj);
+
+					for(var j=0; j<currentEval.length; j++){
+						if( evalScores[k].children[i].className == currentEval[j].className ){
+							listToBeKept[i].keep = true;
+							listToBeKept[i].score = $("[name='"+allData[k].firstname+currentEval[j].className+"Rating']:checked").val();
+							// console.log("keep li " + currentEval[j].className);
+						}
 					}
-					else{
-						// Get the evaluation element object at the TOP
-						var currentEval = evaluateList.el.getElementsByTagName("li");
+					// Delete the eval ranking of all the students
+						// while (evalScores[i].firstChild) 
+						// 	evalScores[i].removeChild(evalScores[i].firstChild);
+				}
+				listToBeKeptPpl.push(listToBeKept);
+			}
 
-						listToBeKeptPpl = [];
-						// listToBeKept = [];
+			// Delete
+			// - ALL
+			for(var i=0; i<evalScores.length; i++){
+				while (evalScores[i].firstChild) 
+					evalScores[i].removeChild(evalScores[i].firstChild);
+			}
 
-						// Detection for DELETE
-						// - using all first student
-						for(var k=0; k<evalScores.length; k++){
+			// For each evaluation element at TOP
+			for(var i=0; i<currentEval.length; i++){
+				var isCheckedAlready = false;
+				var indexOfCheckedList = -1;
 
-							listToBeKept = [];
-							for(var i=0; i<evalScores[k].children.length; i++){
-								var keepObj = {};
-								keepObj['keep'] = false;
-								keepObj['name'] = evalScores[k].children[i].className;
-								keepObj['score'] = -1;
-								listToBeKept.push(keepObj);
-
-								for(var j=0; j<currentEval.length; j++){
-									if( evalScores[k].children[i].className == currentEval[j].className ){
-										listToBeKept[i].keep = true;
-										listToBeKept[i].score = $("[name='"+allData[k].firstname+currentEval[j].className+"Rating']:checked").val();
-										// console.log("keep li " + currentEval[j].className);
-									}
-								}
-								// Delete the eval ranking of all the students
-									// while (evalScores[i].firstChild) 
-									// 	evalScores[i].removeChild(evalScores[i].firstChild);
-							}
-							listToBeKeptPpl.push(listToBeKept);
-						}
-
-						// Delete
-						// v.0 -ALL
-						for(var i=0; i<evalScores.length; i++){
-							while (evalScores[i].firstChild) 
-								evalScores[i].removeChild(evalScores[i].firstChild);
-						}
-						// v.1
-						// for(var i=0; i<evalScores.length; i++){
-						// 	for(var j=0; j<listToBeKept.length; j++){
-						// 		if( !listToBeKept[j].keep ){
-						// 			console.log("remove " + evalScores[i].children[j].className);
-						// 			evalScores[i].removeChild(evalScores[i].children[j]);
-						// 			listToBeKept.splice(j,1);
-						// 		}
-						// 	}
-						// }
-						// v.2
-						// for(var j=0; j<listToBeKept.length; j++){
-						// 	for(var i=0; i<evalScores.length; i++){
-						// 		if( !listToBeKept[j].keep ){
-						// 			console.log("remove " + evalScores[i].children[j].className);
-						// 			evalScores[i].removeChild(evalScores[i].children[j]);
-						// 		}
-						// 	}
-						// 	listToBeKept.splice(j,1);
-						// }
-						// v.3
-						// for(var j=0; j<listToBeKept.length; j++){
-						// 	// for(var i=0; i<evalScores.length; i++){
-						// 		if( !listToBeKept[j].keep ){
-						// 			console.log("remove " + listToBeKept[j].name);
-						// 			var tmpCN = listToBeKept[j].name;
-						// 			tmpCN = tmpCN.split(" ");
-    		// 						if(tmpCN.length>1)
-    		// 							$(".eval_scores").children("."+tmpCN[0]+"."+tmpCN[1]).remove();
-    		// 						else
-    		// 							$(".eval_scores").children("."+listToBeKept[j].name).remove();
-						// 		}
-						// }
-
-						// For each evaluation element at TOP
-						for(var i=0; i<currentEval.length; i++){
-							var isCheckedAlready = false;
-							var indexOfCheckedList = -1;
-
-							// Get the checked Value!
-							// for(var j=0; j<listToBeKept.length; j++){
-							for(var j=0; j<listToBeKeptPpl[0].length; j++){
-								if( (currentEval[i].className == listToBeKeptPpl[0][j].name)
-									&& listToBeKeptPpl[0][j].keep ) {
-									isCheckedAlready = true;
-									indexOfCheckedList = j;
-									// console.log(currentEval[i].className + "is checked (first student): " + listToBeKeptPpl[0][j].score);
-								}
-							}
-
-							// Get the text of the element, eg Fabrication
-							var tmpL = currentEval[i].innerHTML;
-							var tmpCut = tmpL.split("<");
-
-							// For each student, recreate the evaluation element
-							// v1
-							// for(var j=0; j<evalScores.length; j++){
-								// var s_el_simple = document.createElement('li');
-								// s_el_simple.innerHTML = tmpCut[0];
-								// evalScores[j].appendChild(s_el_simple);					
-							// }
-
-							// v2
-							// var $eLi = $("<li>").text(tmpCut[0]).appendTo($('.eval_scores'));
-
-							// var $eSpan = $("<span>",{
-							// 	class: "star-rating"
-							// }).appendTo($eLi);
-
-							// for(var j=0; j<5; j++){
-							// 	$("<input>", {
-							// 		type: "radio",
-							// 		name: tmpCut[0]+"Rating",
-							// 		value: j+1
-							// 	}).appendTo($eSpan);
-							// }
-
-							// v3
-							// For every Div with className "eval_scores"
-							// --> For every students' rankings
-							$('.eval_scores').each(function(index){
-
-								// Create li element, and assign text, eg Fabrication
-								// Then append to the Div
-								// v.1
-								// var $eLi = $("<li>").text(tmpCut[0]);
-								// v.2
-								var $eLi = $("<li>", {
-									text: tmpCut[0],
-									class: tmpCut[0]
-								});
-
-								$(this).append($eLi);
-
-								// Create span element, to restore all the ranking inputs
-								// Then append to li
-								var $eSpan = $("<span>",{
-									class: "star-rating"
-								}).appendTo($eLi);
-
-								// console.log("index: " + index);
-
-								// To create FIVE ranking dots for each element
-								for(var j=0; j<5; j++){
-									// Create input element
-									// And assign specific name, eg Laura+Fabrication+Rating, so FIVE dots are in a group
-									// v.1
-									// $("<input>", {
-									// 	type: "radio",
-									// 	name: allData[index].firstname+tmpCut[0]+"Rating",
-									// 	value: j+1
-									// }).appendTo($eSpan);
-
-									var $eLabel = $("<label>", {
-										class: "radio-inline",
-										text: j+1
-									});
-
-									// v.1
-									// create input radio with client_side history
-									// if( isCheckedAlready && j==(listToBeKeptPpl[index][indexOfCheckedList].score-1) ){
-									// 	$("<input>", {
-									// 		class: allData[index].netid + "_" + tmpCut[0],
-									// 		type: "radio",
-									// 		name: allData[index].firstname+tmpCut[0]+"Rating",
-									// 		value: j+1,
-									// 		checked: "checked"
-									// 	}).change( changedStuffRadio ).appendTo($eLabel);
-
-									// 	$eLabel.appendTo($eSpan);
-									// } else {
-									// 	$("<input>", {
-									// 		class: allData[index].netid + "_" + tmpCut[0],
-									// 		type: "radio",
-									// 		name: allData[index].firstname+tmpCut[0]+"Rating",
-									// 		value: j+1
-									// 	}).change( changedStuffRadio ).appendTo($eLabel);
-									// 	$eLabel.appendTo($eSpan);
-									// }
-
-									// v.2
-									// create input radio with server_side history
-									$("<input>", {
-										class: allData[index].netid + "_" + tmpCut[0],
-										type: "radio",
-										name: allData[index].firstname+tmpCut[0]+"Rating",
-										value: j+1
-									}).change( changedStuffRadio ).appendTo($eLabel);
-									$eLabel.appendTo($eSpan);
-								}
-							});
-						}
-
-						// get existed radio feedback
-						var getParams = {
-							action: 'get_feedback',
-							section_id: theSection_id,
-							secret_key: secret_key
-						}
-						$.post(server_address, getParams, gotExistingRadioFeedback, "json");
-
+				// Get the checked Value!
+				// for(var j=0; j<listToBeKept.length; j++){
+				for(var j=0; j<listToBeKeptPpl[0].length; j++){
+					if( (currentEval[i].className == listToBeKeptPpl[0][j].name)
+						&& listToBeKeptPpl[0][j].keep ) {
+						isCheckedAlready = true;
+						indexOfCheckedList = j;
+						console.log(currentEval[i].className + "is checked (first student): " + listToBeKeptPpl[0][j].score);
 					}
 				}
-			});	
+
+				// Get the text of the element, eg Fabrication
+				var tmpL = currentEval[i].innerHTML;
+				var tmpCut = tmpL.split("<");
+
+				// For each student, recreate the evaluation element
+				// v1
+				// for(var j=0; j<evalScores.length; j++){
+					// var s_el_simple = document.createElement('li');
+					// s_el_simple.innerHTML = tmpCut[0];
+					// evalScores[j].appendChild(s_el_simple);					
+				// }
+
+				// v2
+				// var $eLi = $("<li>").text(tmpCut[0]).appendTo($('.eval_scores'));
+
+				// var $eSpan = $("<span>",{
+				// 	class: "star-rating"
+				// }).appendTo($eLi);
+
+				// for(var j=0; j<5; j++){
+				// 	$("<input>", {
+				// 		type: "radio",
+				// 		name: tmpCut[0]+"Rating",
+				// 		value: j+1
+				// 	}).appendTo($eSpan);
+				// }
+
+				// v3
+				// For every Div with className "eval_scores"
+				// --> For every students' rankings
+				$('.eval_scores').each(function(index){
+
+					// Create li element, and assign text, eg Fabrication
+					// Then append to the Div
+					// v.1
+					// var $eLi = $("<li>").text(tmpCut[0]);
+					// v.2
+					var $eLi = $("<li>", {
+						text: tmpCut[0],
+						class: tmpCut[0]
+					});
+
+					$(this).append($eLi);
+
+					// Create span element, to restore all the ranking inputs
+					// Then append to li
+					var $eSpan = $("<span>",{
+						class: "star-rating"
+					}).appendTo($eLi);
+
+					// console.log("index: " + index);
+
+					// To create Four ranking dots for each element
+					for(var j=0; j<4; j++){
+						// Create input element
+						// And assign specific name, eg Laura+Fabrication+Rating, so FIVE dots are in a group
+						// v.1
+						// $("<input>", {
+						// 	type: "radio",
+						// 	name: allData[index].firstname+tmpCut[0]+"Rating",
+						// 	value: j+1
+						// }).appendTo($eSpan);
+
+						var $eLabel = $("<label>", {
+							class: "radio-inline",
+							text: rankingTexts[j]
+						});
+
+						// v.1
+						// create input radio with client_side history
+						// if( isCheckedAlready && j==(listToBeKeptPpl[index][indexOfCheckedList].score-1) ){
+						// 	$("<input>", {
+						// 		class: allData[index].netid + "_" + tmpCut[0],
+						// 		type: "radio",
+						// 		name: allData[index].firstname+tmpCut[0]+"Rating",
+						// 		value: j+1,
+						// 		checked: "checked"
+						// 	}).change( changedStuffRadio ).appendTo($eLabel);
+
+						// 	$eLabel.appendTo($eSpan);
+						// } else {
+						// 	$("<input>", {
+						// 		class: allData[index].netid + "_" + tmpCut[0],
+						// 		type: "radio",
+						// 		name: allData[index].firstname+tmpCut[0]+"Rating",
+						// 		value: j+1
+						// 	}).change( changedStuffRadio ).appendTo($eLabel);
+						// 	$eLabel.appendTo($eSpan);
+						// }
+
+						// v.2
+						// create input radio with server_side history
+						$("<input>", {
+							class: allData[index].netid + "_" + tmpCut[0],
+							type: "radio",
+							name: allData[index].firstname+tmpCut[0]+"Rating",
+							value: j
+						}).change( changedStuffRadio ).appendTo($eLabel);
+						$eLabel.appendTo($eSpan);
+					}
+				});
+			}
+
+			// get existed radio feedback
+			var getParams = {
+				action: 'get_feedback',
+				section_id: theSection_id,
+				secret_key: secret_key
+			}
+			$.post(server_address, getParams, gotExistingRadioFeedback, "json");
 		}
 
 	// Get all the default eval ranking elements, from the Sortable object at the TOP
@@ -458,7 +423,7 @@ function init () {
 		// console.log(data[0]);
 
 		courseN.innerHTML += data[0].title;
-		teacherN.innerHTML += data[0].title;
+		teacherN.innerHTML += teacherStuff[from_netid].firstname + " " + teacherStuff[from_netid].lastname;
 		courseT.innerHTML += (data[0].semester + " " + data[0].year);
 		courseNum.innerHTML += data[0].course_number;
 
@@ -524,17 +489,17 @@ function init () {
 				// To create FIVE ranking dots for each element
 				// Create input element
 				// And assign specific name, eg Laura+Fabrication+Rating, so FIVE dots are in a group
-				for(var j=0; j<5; j++){
+				for(var j=0; j<4; j++){
 					var $eLabel = $("<label>", {
 						class: "radio-inline",
-						text: j+1
+						text: rankingTexts[j]
 					});
 
 					$("<input>", {
 						class: val.netid + "_" + defaultEvals[i],
 						type: "radio",
 						name: val.firstname+defaultEvals[i]+"Rating",
-						value: j+1
+						value: j
 					}).change( changedStuffRadio ).appendTo($eLabel);
 
 					$eLabel.appendTo($eSpan);
@@ -550,7 +515,7 @@ function init () {
 			// Create textarea element
 			var $text = $("<textarea>",{
 				id: val.netid+"_TextMiddle",
-				placeholder: "Put down some \"Opportunities\" to " + val.firstname + ".",
+				placeholder: "Put down your feedback to " + val.firstname + ".",
 				// width: "80%",
 				// height: "5em",
 				class: "form-control",
@@ -568,13 +533,53 @@ function init () {
 			// 		    }
 			// }).appendTo($sdiv_3);
 
+			var $butnR = $("<button>",{
+				id: val.firstname+"ReviewButton",
+				class: "btn btn-default btnSS",
+				text: "Review for email",
+				click:  function(){
+							// Get ranking elements!
+						    var evalList = $('#eval_items').children();
+						    var tempEvals = [];
+						    for(var i=0; i<evalList.length; i++){
+						    	var tempEvalObj = {};
+						    	tempEvalObj.name = evalList[i].className;
+						    	tempEvalObj.score = $("[name='"+val.firstname+tempEvalObj.name+"Rating']:checked").val();
+						    	console.log(tempEvalObj.score);
+						    	tempEvals.push(tempEvalObj);
+						    }
+
+							var emailBody = "Hi "
+											+ val.firstname
+											+ ",<br><br>"
+											+ $("#all_textStart").val()
+											+ "<br><br>"
+											+ "Here's your objective scores:<br>";
+							for(var i=0; i<tempEvals.length; i++){
+								if(tempEvals[i].score!=3)
+									emailBody += " * " + tempEvals[i].name + ": " + rankingTexts[tempEvals[i].score] + "<br>";
+							}
+
+							emailBody += "<br>"
+										+ $("#"+val.id+"_TextMiddle").val()
+										+ "<br><br>"
+										+ $("#all_textEnd").val()
+										+ "<br><br>Warmest,<br>"
+										+ teacherStuff[from_netid].firstname + " " + teacherStuff[from_netid].lastname;
+
+					   		vex.dialog.alert(
+					   			emailBody
+					   		);
+					    }
+			}).appendTo($sdiv_3);
+
 			var $butnE = $("<button>",{
 				id: val.netid+"EmailButton",
 				class: "btn btn-default btnSS",
 				text: "Send Email",
 				click:  function(){
-							// console.log("click!");
-
+							console.log("click!");
+							 $("#"+val.netid+"EmailButton").css("background-color","#7be6d4");
 							//v.1
 							// var mailto_link = "mailto:" + "linkinmonkey@gmail.com" + "?subject=Feedback on " + allData[0].title + "&body=" + $("#textStart").val();
 							// // window.location.href = "mailto:linkinmonkey@gmail.com?subject=Feedback on " + allData[0].title;
@@ -624,8 +629,10 @@ function gotExistingFeedback(existing_feedback) {
 		}
 		else if(element.length==0){
 			var classElement = $("." + id);
-			if(classElement.length>0)
-				classElement[ existing_feedback[i].feedback-1 ].checked = "checked";
+			if(classElement.length>0){
+				console.log(existing_feedback[i].to_netid);
+				classElement[ existing_feedback[i].feedback ].checked = "checked";
+			}
 			else {
 				// className has Space
 				var sepID = id.split(" ");
@@ -635,7 +642,7 @@ function gotExistingFeedback(existing_feedback) {
 				}
 				var classElement2 = $(classNameWithSpace);
 				if(classElement2.length>0)
-					classElement2[ existing_feedback[i].feedback-1 ].checked = "checked";
+					classElement2[ existing_feedback[i].feedback ].checked = "checked";
 			}
 		}
 	}
@@ -645,8 +652,9 @@ function gotExistingRadioFeedback(existing_feedback) {
 	for (var i=0; i<existing_feedback.length; i++) {
 		var id = existing_feedback[i].to_netid + "_" + existing_feedback[i].type_of_feedback;
 		var classElement = $("." + id);
+
 		if(classElement.length>0)
-			classElement[ existing_feedback[i].feedback-1 ].checked = "checked";
+			classElement[ existing_feedback[i].feedback ].checked = "checked";
 		else {
 			// className has Space
 			var sepID = id.split(" ");
@@ -656,7 +664,7 @@ function gotExistingRadioFeedback(existing_feedback) {
 			}
 			var classElement2 = $(classNameWithSpace);
 			if(classElement2.length>0)
-				classElement2[ existing_feedback[i].feedback-1 ].checked = "checked";
+				classElement2[ existing_feedback[i].feedback ].checked = "checked";
 		}
 
 	}
@@ -800,6 +808,7 @@ function makeMailto( _infoObj ) {
 
 	function makeTheEmail() {
 		// Capture & Save image
+		/*
 		html2canvas($(whatToGrab), {
 			// $("#"+_infoObj.netid+"RankingDiv")
 	        onrendered: function(canvas) {
@@ -816,6 +825,18 @@ function makeMailto( _infoObj ) {
 				downloadURI(dataUrl, _infoObj.name + "Ranking" + _infoObj.course + ".png");
 	        }
 	    });
+		*/
+
+	    // Get ranking elements!
+	    var evalList = $('#eval_items').children();
+	    var tempEvals = [], tempEvalObj = {};
+	    for(var i=0; i<evalList.length; i++){
+	    	tempEvalObj = {};
+	    	tempEvalObj.name = evalList[i].className;
+	    	tempEvalObj.score = $("[name='"+_infoObj.name+tempEvalObj.name+"Rating']:checked").val();
+	    	console.log(tempEvalObj.score);
+	    	tempEvals.push(tempEvalObj);
+	    }
 
 	    // Compose Email
 		strMailto = "mailto:";
@@ -827,14 +848,18 @@ function makeMailto( _infoObj ) {
 						+ ",\n\n"
 						+ $("#all_textStart").val()
 						+ "\n\n"
-						+ "Here's your objective scores:\n"
-						+ "(Replace this by inserting the \"" + _infoObj.name + "Ranking" + _infoObj.course + ".png\" image you just saved.)"
-						+ "\n\n"
-						+ $("#"+_id+"_TextMiddle").val()
-						+ "\n\n"
-						+ $("#all_textEnd").val()
-						+ "\n\nWarmest,\n"
-						+ teacherStuff[from_netid].firstname + " " + teacherStuff[from_netid].lastname;
+						+ "Here's your objective scores:\n";
+		for(var i=0; i<tempEvals.length; i++){
+			if(tempEvals[i].score!=3)
+				emailBody += " * " + tempEvals[i].name + ": " + rankingTexts[tempEvals[i].score] + "\n";
+		}
+
+		emailBody += "\n"
+					+ $("#"+_id+"_TextMiddle").val()
+					+ "\n\n"
+					+ $("#all_textEnd").val()
+					+ "\n\nWarmest,\n"
+					+ teacherStuff[from_netid].firstname + " " + teacherStuff[from_netid].lastname;
 
 		addField("body", emailBody, true);
 

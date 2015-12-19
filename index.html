@@ -18,7 +18,19 @@
 		</h1>
 
 		<div class="container">
-			<button id="login" class="btn btn-default">Log In</button>
+
+			<p class="lead">
+				Instruction:
+				<ul class="instruction">
+					<li>
+						Objective Score Elements can be dragged / added / deleted, and be applied to all the students after clicking the Update button. 
+					</li>
+					<li>
+						Set Gmail as your default email handler <a href="https://developers.google.com/web/updates/2012/02/Getting-Gmail-to-handle-all-mailto-links-with-registerProtocolHandler?hl=en">tutorial</a>, instead of using Mail Application.
+					</li>
+				</ul>
+			</p>
+			<!-- <button id="saveFake" class="btn btn-default">Save</button> -->
 
 			<div class="info">
 				<div id="course_name">Course Name: </div>
@@ -45,15 +57,15 @@
 				<li class="Organizing">Organizing<i class="js-remove">X</i></li>
 				<li class="Presentation">Presentation<i class="js-remove">X</i></li>
 			</ul>
-			<button id="add_skill">Add</button>
-			<button id="update_skill">Update</button>
+			<button id="add_skill" class="btn btn-default">Add</button>
+			<button id="update_skill" class="btn btn-default">Update</button>
 
 			<!-- Div for all the students -->
 			<div id="studentHolder"></div>
 
 			<!-- Bottom button to SAVE ALL data -->
 			<div class="buttonHolder">
-				<button id="saveAllButton" onclick="saveAllButton(event)" style="">Save All</button>
+				<button id="saveFake" class="btn btn-default">Save All</button>
 			</div>
 		</div>
 
