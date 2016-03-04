@@ -606,7 +606,8 @@ function createStudentStuff() {
 				text: "Send Email",
 				click:  function(){
 							console.log("click!");
-							 $("#"+val.netid+"EmailButton").css("background-color","#7be6d4");
+							$("#"+val.netid+"EmailButton").css("background-color","#7be6d4");
+
 							//v.1
 							// var mailto_link = "mailto:" + "linkinmonkey@gmail.com" + "?subject=Feedback on " + allData[0].title + "&body=" + $("#textStart").val();
 							// // window.location.href = "mailto:linkinmonkey@gmail.com?subject=Feedback on " + allData[0].title;
@@ -775,7 +776,7 @@ function changedStuff() {
 		action: 'give_feedback',
 		section_id: theSection_id,
 		secret_key: secret_key
-	}
+	};
 	// console.log(params);
 
 	// TEST Un_code
@@ -858,8 +859,10 @@ function makeMailto( _infoObj ) {
 			],
 			callback: function(value) {
 				// console.log(value);
-				if(value==false)
+				if(value==false) {
+					$("#"+_id+"EmailButton").css("background-color","#ffffff");
 					return;
+				}
 				else{
 					makeTheEmail();
 				}
