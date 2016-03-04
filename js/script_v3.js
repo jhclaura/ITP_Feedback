@@ -24,8 +24,6 @@ var theSection_id, from_netid, to_netid;
 var secret_key = "X7kdsjafoeTRD6DYY76TFDKU6T6HGGDFgd";
 var server_address = "http://itp.nyu.edu/registration/feedback/feedback.php";
 var server_address_menu = "http://itp.nyu.edu/registration/feedback/feedback_test.php";
-var classSemester = "Fall";
-var classYear = "2015";
 //
 
 ////////////////////////////////////////////////
@@ -34,12 +32,9 @@ superInit();
 // animate();
 
 function superInit() {
-	$(document).ready(function() {
-	  $.ajaxSetup({ cache: false });
-	});
 
 	// Get all the data of teachers and their classes
-	$.getJSON(server_address + "?action=list_sections&semester=" + classSemester + "&year=" + classYear + "&secret_key=" + secret_key, function(data){
+	$.getJSON(server_address + "?action=list_sections&semester=Fall&year=2015&secret_key=" + secret_key, function(data){
 		
 		allTeacherData = data;
 		// console.log(data[0]);
@@ -131,6 +126,12 @@ function doLoginDialog() {
 			else if( teacherStuff[data.netId].lastname == data.lastname ){
 				from_netid = data.netId;
 
+				// v.0
+				// vex.dialog.alert("Good morning teacher " + data.lastname + ".");
+				// readyToLaunch = true;
+				// //
+				// init();
+
 				// v.1
 				// create input string!
 				var stringForSelect="<select id='selectClass'>";
@@ -146,6 +147,9 @@ function doLoginDialog() {
 						$.extend({}, vex.dialog.buttons.YES, {
 							text: "OK"
 						})
+						// $.extend({}, vex.dialog.buttons.NO, {
+						// 	text: "Back"
+						// })
 					],
 					callback: function(dataaa) {
 						if(dataaa===false){
@@ -191,14 +195,55 @@ function init () {
 		el = document.getElementById('eval_items_new');
 
 		function list_menu() {
-			return server_address + "?action=get_feedback_menu&semester=" + classSemester + "&year=" + classYear + "&secret_key=" + secret_key + "&from_netid=fake_test&section_id=" + theSection_id;
+			return server_address_menu + "?action=get_feedback_menu&semester=Fall&year=2015&secret_key=" + secret_key + "&from_netid=fake_test&section_id=" + theSection_id;
 		}
 
 		$.getJSON( list_menu(), function(data){
 			// allData = data;
 			
-			console.log(data);
+			// console.log(data);
 			// console.log(data.type_of_feedback);
+
+			// v.1
+			/*
+			// if the menu is updated, use the record
+			if(data.length>0){
+				
+				// For each student
+				$.each(data, function(key, val){
+
+					// var $e_m_Li = $("<li>", {
+					// 	text: val.type_of_feedback,
+					// 	class: val.type_of_feedback
+					// });
+
+					// var $e_m_i = $("<i>",{
+					// 	text: "X",
+					// 	class: "js-remove"
+					// }).appendTo($e_m_Li);
+
+					// $('#eval_items_new').append($e_m_Li);
+
+					var e_m_Li = document.createElement('li');
+					e_m_Li.className = val.type_of_feedback;
+					e_m_Li.innerHTML = val.type_of_feedback + '<i class="js-remove">X</i>';
+
+					$('#eval_items_new').append(e_m_Li);
+				});
+
+			// if the menu is not updated, use the default
+			} else {
+
+				for(var i=0; i<default_el.length; i++){
+
+					var e_m_Li = document.createElement('li');
+					e_m_Li.className = default_el[i];
+					e_m_Li.innerHTML = default_el[i] + '<i class="js-remove">X</i>';
+
+					$('#eval_items_new').append(e_m_Li);
+				}
+			}
+			*/
 
 			// v.2
 			console.log(data.type_of_feedback.length);
@@ -215,7 +260,9 @@ function init () {
 
 			// if the menu is not updated, use the default
 			} else {
+
 				for(var i=0; i<default_el.length; i++){
+
 					var e_m_Li = document.createElement('li');
 					e_m_Li.className = default_el[i];
 					e_m_Li.innerHTML = default_el[i] + '<i class="js-remove">X</i>';
@@ -282,13 +329,13 @@ function init () {
 
 				var params = {  
 				   "type_of_feedback": newMenu,				   
-				   "section_id": theSection_id,
-				   "from_netid": "fake_test"				   
+				   "section_id":4085,
+				   "from_netid":"fake_test"				   
 				};
 				
-				// DELETE!!!
 				//$.post(server_address_menu + "?action=update_feedback&secret_key=" + secret_key, params, savedMenuResponse, "json");
-				$.post(server_address + "?action=update_feedback&secret_key=" + secret_key, JSON.stringify(params), function(response){
+				
+				$.post("http://itp.nyu.edu/registration/feedback/feedback_test.php?action=update_feedback&secret_key=X7kdsjafoeTRD6DYY76TFDKU6T6HGGDFgd", JSON.stringify(params), function(response){
 					console.log("DONE!!");
 				}, 'json');
 
@@ -439,7 +486,7 @@ function init () {
 							$("<input>", {
 								class: allData[index].netid + "_" + tmpCut[0],
 								type: "radio",
-								name: allData[index].netid + "_" +tmpCut[0]+"Rating",
+								name: allData[index].firstname+tmpCut[0]+"Rating",
 								value: j
 							}).change( changedStuffRadio ).appendTo($eLabel);
 							$eLabel.appendTo($eSpan);
@@ -460,12 +507,227 @@ function init () {
 
 			createStudentStuff();
 		});
+	
+		
+
+		/*
+			// Create Sortable object at the TOP
+			evaluateList = Sortable.create(el, {
+				animation: 150,
+				filter: '.js-remove',
+				onFilter: function(evt){
+					evt.item.parentNode.removeChild(evt.item);
+				}
+				// onUpdate: function (evt){
+				// 	var item = evt.item; // the current dragged HTMLElement
+				// 	console.log(item);
+				// }
+			});
+
+			// ADD button
+			// Adding new element for ranking
+			byId('add_skill').onclick = function() {
+				var s_el = document.createElement('li');			// Get all the TOP elements
+				var s_el_simple = document.createElement('li');		// Get all the students' elements
+
+				vex.dialog.prompt({
+					message: "Skill to add to evaluate:",
+					placeholder: "Weirdness",
+					callback: function(value){
+						if(!value) {
+							return;
+						}
+						s_el.className = value;
+						s_el.innerHTML = value + '<i class="js-remove">X</i>';
+						evaluateList.el.appendChild(s_el);
+						//
+						// s_el_simple.innerHTML = value;
+						// for(var i=0; i<evalScores.length; i++){
+						// 	evalScores[i].appendChild(s_el_simple);
+						// }
+					}
+				});
+				// s_el.innerHTML = 
+			}
+
+			// UPDATE button
+			// If clicked, all the students' elements will be updated as same as the TOP one
+			byId('update_skill').onclick = function() {
+
+				// Get the evaluation element object at the TOP
+				var currentEval = evaluateList.el.getElementsByTagName("li");
+
+				listToBeKeptPpl = [];
+				// listToBeKept = [];
+
+				// Detection for DELETE
+				// - using all first student
+				for(var k=0; k<evalScores.length; k++){
+
+					listToBeKept = [];
+					for(var i=0; i<evalScores[k].children.length; i++){
+						var keepObj = {};
+						keepObj['keep'] = false;
+						keepObj['name'] = evalScores[k].children[i].className;
+						keepObj['score'] = -1;
+						listToBeKept.push(keepObj);
+
+						for(var j=0; j<currentEval.length; j++){
+							if( evalScores[k].children[i].className == currentEval[j].className ){
+								listToBeKept[i].keep = true;
+								listToBeKept[i].score = $("[name='"+allData[k].firstname+currentEval[j].className+"Rating']:checked").val();
+								// console.log("keep li " + currentEval[j].className);
+							}
+						}
+						// Delete the eval ranking of all the students
+							// while (evalScores[i].firstChild) 
+							// 	evalScores[i].removeChild(evalScores[i].firstChild);
+					}
+					listToBeKeptPpl.push(listToBeKept);
+				}
+
+				// Delete
+				// - ALL
+				for(var i=0; i<evalScores.length; i++){
+					while (evalScores[i].firstChild) 
+						evalScores[i].removeChild(evalScores[i].firstChild);
+				}
+
+				// For each evaluation element at TOP
+				for(var i=0; i<currentEval.length; i++){
+					var isCheckedAlready = false;
+					var indexOfCheckedList = -1;
+
+					// Get the checked Value!
+					// for(var j=0; j<listToBeKept.length; j++){
+					for(var j=0; j<listToBeKeptPpl[0].length; j++){
+						if( (currentEval[i].className == listToBeKeptPpl[0][j].name)
+							&& listToBeKeptPpl[0][j].keep ) {
+							isCheckedAlready = true;
+							indexOfCheckedList = j;
+							console.log(currentEval[i].className + "is checked (first student): " + listToBeKeptPpl[0][j].score);
+						}
+					}
+
+					// Get the text of the element, eg Fabrication
+					var tmpL = currentEval[i].innerHTML;
+					var tmpCut = tmpL.split("<");
+
+					// For each student, recreate the evaluation element
+					// v1
+					// for(var j=0; j<evalScores.length; j++){
+						// var s_el_simple = document.createElement('li');
+						// s_el_simple.innerHTML = tmpCut[0];
+						// evalScores[j].appendChild(s_el_simple);					
+					// }
+
+					// v2
+					// var $eLi = $("<li>").text(tmpCut[0]).appendTo($('.eval_scores'));
+
+					// var $eSpan = $("<span>",{
+					// 	class: "star-rating"
+					// }).appendTo($eLi);
+
+					// for(var j=0; j<5; j++){
+					// 	$("<input>", {
+					// 		type: "radio",
+					// 		name: tmpCut[0]+"Rating",
+					// 		value: j+1
+					// 	}).appendTo($eSpan);
+					// }
+
+					// v3
+					// For every Div with className "eval_scores"
+					// --> For every students' rankings
+					$('.eval_scores').each(function(index){
+
+						// Create li element, and assign text, eg Fabrication
+						// Then append to the Div
+						// v.1
+						// var $eLi = $("<li>").text(tmpCut[0]);
+						// v.2
+						var $eLi = $("<li>", {
+							text: tmpCut[0],
+							class: tmpCut[0]
+						});
+
+						$(this).append($eLi);
+
+						// Create span element, to restore all the ranking inputs
+						// Then append to li
+						var $eSpan = $("<span>",{
+							class: "star-rating"
+						}).appendTo($eLi);
+
+						// console.log("index: " + index);
+
+						// To create Four ranking dots for each element
+						for(var j=0; j<4; j++){
+							// Create input element
+							// And assign specific name, eg Laura+Fabrication+Rating, so FIVE dots are in a group
+							// v.1
+							// $("<input>", {
+							// 	type: "radio",
+							// 	name: allData[index].firstname+tmpCut[0]+"Rating",
+							// 	value: j+1
+							// }).appendTo($eSpan);
+
+							var $eLabel = $("<label>", {
+								class: "radio-inline",
+								text: rankingTexts[j]
+							});
+
+							// v.1
+							// create input radio with client_side history
+							// if( isCheckedAlready && j==(listToBeKeptPpl[index][indexOfCheckedList].score-1) ){
+							// 	$("<input>", {
+							// 		class: allData[index].netid + "_" + tmpCut[0],
+							// 		type: "radio",
+							// 		name: allData[index].firstname+tmpCut[0]+"Rating",
+							// 		value: j+1,
+							// 		checked: "checked"
+							// 	}).change( changedStuffRadio ).appendTo($eLabel);
+
+							// 	$eLabel.appendTo($eSpan);
+							// } else {
+							// 	$("<input>", {
+							// 		class: allData[index].netid + "_" + tmpCut[0],
+							// 		type: "radio",
+							// 		name: allData[index].firstname+tmpCut[0]+"Rating",
+							// 		value: j+1
+							// 	}).change( changedStuffRadio ).appendTo($eLabel);
+							// 	$eLabel.appendTo($eSpan);
+							// }
+
+							// v.2
+							// create input radio with server_side history
+							$("<input>", {
+								class: allData[index].netid + "_" + tmpCut[0],
+								type: "radio",
+								name: allData[index].firstname+tmpCut[0]+"Rating",
+								value: j
+							}).change( changedStuffRadio ).appendTo($eLabel);
+							$eLabel.appendTo($eSpan);
+						}
+					});
+				}
+
+				// get existed radio feedback
+				var getParams = {
+					action: 'get_feedback',
+					section_id: theSection_id,
+					secret_key: secret_key
+				}
+				$.post(server_address, getParams, gotExistingRadioFeedback, "json");
+			}
+		*/
+
+	// createStudentStuff();
 }
 
 function createStudentStuff() {
 	// Get all the default eval ranking elements, from the Sortable object at the TOP
 	var defaultEval = evaluateList.el.getElementsByTagName("li");
-	console.log( defaultEval );
 
 	// Get all the names of the default eval ranking elements
 	for(var i=0; i<defaultEval.length; i++){
@@ -565,7 +827,7 @@ function createStudentStuff() {
 					$("<input>", {
 						class: val.netid + "_" + defaultEvals[i],
 						type: "radio",
-						name: val.netid + "_" + defaultEvals[i] + "Rating",
+						name: val.firstname+defaultEvals[i]+"Rating",
 						value: j
 					}).change( changedStuffRadio ).appendTo($eLabel);
 
@@ -600,14 +862,54 @@ function createStudentStuff() {
 			// 		    }
 			// }).appendTo($sdiv_3);
 
+			var $butnR = $("<button>",{
+				id: val.firstname+"ReviewButton",
+				class: "btn btn-default btnSS",
+				text: "Review for email",
+				click:  function(){
+
+					// Get ranking elements!
+				    var evalList = $('#eval_items').children();
+				    var tempEvals = [];
+				    for(var i=0; i<evalList.length; i++){
+				    	var tempEvalObj = {};
+				    	tempEvalObj.name = evalList[i].className;
+				    	tempEvalObj.score = $("[name='"+val.firstname+tempEvalObj.name+"Rating']:checked").val();
+				    	console.log(tempEvalObj.score);
+				    	tempEvals.push(tempEvalObj);
+				    }
+
+					var emailBody = "Hi "
+									+ val.firstname
+									+ ",<br><br>"
+									+ $("#all_textStart").val()
+									+ "<br><br>"
+									+ "Here's your objective scores:<br>";
+					for(var i=0; i<tempEvals.length; i++){
+						if(tempEvals[i].score!=3)
+							emailBody += " * " + tempEvals[i].name + ": " + rankingTexts[tempEvals[i].score] + "<br>";
+					}
+
+					emailBody += "<br>"
+								+ $("#"+val.id+"_TextMiddle").val()
+								+ "<br><br>"
+								+ $("#all_textEnd").val()
+								+ "<br><br>Warmest,<br>"
+								+ teacherStuff[from_netid].firstname + " " + teacherStuff[from_netid].lastname;
+
+			   		vex.dialog.alert(
+			   			emailBody
+			   		);
+			    }
+			}).appendTo($sdiv_3);
+
 			var $butnE = $("<button>",{
 				id: val.netid+"EmailButton",
 				class: "btn btn-default btnSS",
 				text: "Send Email",
 				click:  function(){
 							console.log("click!");
-							$("#"+val.netid+"EmailButton").css("background-color","#7be6d4");
-
+							 $("#"+val.netid+"EmailButton").css("background-color","#7be6d4");
 							//v.1
 							// var mailto_link = "mailto:" + "linkinmonkey@gmail.com" + "?subject=Feedback on " + allData[0].title + "&body=" + $("#textStart").val();
 							// // window.location.href = "mailto:linkinmonkey@gmail.com?subject=Feedback on " + allData[0].title;
@@ -625,50 +927,6 @@ function createStudentStuff() {
 							makeMailto( infoObj );
 						}
 			}).appendTo($sdiv_3);
-
-			var $butnR = $("<button>",{
-				id: val.firstname+"ReviewButton",
-				class: "btn btn-default btnSS",
-				text: "Review for email",
-				click:  function(){
-
-					// Get ranking elements!
-				    var evalList = $('#eval_items_new').children();
-				    // console.log(evalList.length);
-
-				    var tempEvals = [];
-				    for(var i=0; i<evalList.length; i++){
-				    	var tempEvalObj = {};
-				    	tempEvalObj.name = evalList[i].className;
-				    	tempEvalObj.score = $("[name='"+val.netid + "_" +tempEvalObj.name+"Rating']:checked").val();
-				    	// console.log(tempEvalObj.score);
-				    	tempEvals.push(tempEvalObj);
-				    }
-
-					var emailBody = "Hi "
-									+ val.firstname
-									+ ",<br><br>"
-									+ $("#all_textStart").val()
-									+ "<br><br>"
-									+ "Here's your objective scores:<br>";
-					for(var i=0; i<tempEvals.length; i++){
-						if(tempEvals[i].score!=3)
-							emailBody += " * " + tempEvals[i].name + ": " + rankingTexts[tempEvals[i].score] + "<br>";
-					}
-
-					emailBody += "<br>"
-								+ $("#"+val.netid+"_TextMiddle").val()
-								+ "<br><br>"
-								+ $("#all_textEnd").val()
-								+ "<br><br>Best,<br>"
-								+ teacherStuff[from_netid].firstname + " " + teacherStuff[from_netid].lastname;
-
-			   		vex.dialog.alert(
-			   			emailBody
-			   		);
-			    }
-			}).appendTo($sdiv_3);
-
 
 			// Append studentRow (of each student), to studentsHolder (for all student)
 			studentsHolder.appendChild(studentRow);
@@ -776,7 +1034,7 @@ function changedStuff() {
 		action: 'give_feedback',
 		section_id: theSection_id,
 		secret_key: secret_key
-	};
+	}
 	// console.log(params);
 
 	// TEST Un_code
@@ -844,6 +1102,24 @@ function makeMailto( _infoObj ) {
 	// Ref: http://jsfiddle.net/AbdiasSoftware/7PRNN/
 	var _id = _infoObj.netid;
 	var whatToGrab = "#"+_id+"RankingDiv";
+	/*
+	html2canvas($(whatToGrab), {
+		// $("#"+_infoObj.netid+"RankingDiv")
+        onrendered: function(canvas) {
+            // document.body.appendChild(canvas);
+
+            var dataUrl = canvas.toDataURL("image/png");
+            dataUrlObject[_id] = dataUrl;
+
+		    var imageFoo = document.createElement('img');
+			imageFoo.src = dataUrl;
+			// document.body.appendChild(imageFoo);
+
+			// Download IMG
+			downloadURI(dataUrl, _infoObj.name + "Ranking" + _infoObj.course + ".png");
+        }
+    });
+	*/
 
 	// Compose Email!
 	if ( $("#all_textStart").val() == "" || $("#all_textEnd").val() == "" || $("#"+_id+"_TextMiddle").val() == "" )	{
@@ -859,10 +1135,8 @@ function makeMailto( _infoObj ) {
 			],
 			callback: function(value) {
 				// console.log(value);
-				if(value==false) {
-					$("#"+_id+"EmailButton").css("background-color","#ffffff");
+				if(value==false)
 					return;
-				}
 				else{
 					makeTheEmail();
 				}
@@ -874,17 +1148,33 @@ function makeMailto( _infoObj ) {
 
 	function makeTheEmail() {
 		// Capture & Save image
-		// - nah
+		/*
+		html2canvas($(whatToGrab), {
+			// $("#"+_infoObj.netid+"RankingDiv")
+	        onrendered: function(canvas) {
+	            // document.body.appendChild(canvas);
+
+	            var dataUrl = canvas.toDataURL("image/png");
+	            dataUrlObject[_id] = dataUrl;
+
+			    var imageFoo = document.createElement('img');
+				imageFoo.src = dataUrl;
+				// document.body.appendChild(imageFoo);
+
+				// Download IMG
+				downloadURI(dataUrl, _infoObj.name + "Ranking" + _infoObj.course + ".png");
+	        }
+	    });
+		*/
 
 	    // Get ranking elements!
-	    var evalList = $('#eval_items_new').children();
+	    var evalList = $('#eval_items').children();
 	    var tempEvals = [], tempEvalObj = {};
-
 	    for(var i=0; i<evalList.length; i++){
 	    	tempEvalObj = {};
 	    	tempEvalObj.name = evalList[i].className;
-	    	tempEvalObj.score = $("[name='"+_id+"_"+tempEvalObj.name+"Rating']:checked").val();
-	    	// console.log(tempEvalObj.score);
+	    	tempEvalObj.score = $("[name='"+_infoObj.name+tempEvalObj.name+"Rating']:checked").val();
+	    	console.log(tempEvalObj.score);
 	    	tempEvals.push(tempEvalObj);
 	    }
 
