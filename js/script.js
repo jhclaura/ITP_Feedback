@@ -34,6 +34,9 @@ superInit();
 // animate();
 
 function superInit() {
+	$(document).ready(function() {
+	  $.ajaxSetup({ cache: false });
+	});
 
 	// Get all the data of teachers and their classes
 	$.getJSON(server_address + "?action=list_sections&semester=" + classSemester + "&year=" + classYear + "&secret_key=" + secret_key, function(data){
