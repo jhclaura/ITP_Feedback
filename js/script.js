@@ -206,11 +206,13 @@ function init () {
 			if(data.type_of_feedback.length>0){
 				
 				for(var i=0; i<data.type_of_feedback.length; i++){
-					var e_m_Li = document.createElement('li');
-					e_m_Li.className = data.type_of_feedback[i];
-					e_m_Li.innerHTML = data.type_of_feedback[i] + '<i class="js-remove">X</i>';
+					if(data.type_of_feedback[i] != "TextMiddle"){
+						var e_m_Li = document.createElement('li');
+						e_m_Li.className = data.type_of_feedback[i];
+						e_m_Li.innerHTML = data.type_of_feedback[i] + '<i class="js-remove">X</i>';
 
-					$('#eval_items_new').append(e_m_Li);
+						$('#eval_items_new').append(e_m_Li);
+					}
 				}
 
 			// if the menu is not updated, use the default
@@ -271,6 +273,7 @@ function init () {
 				for(var i=0; i<currentEval.length; i++){
 					newMenu.push(currentEval[i].className);
 				}
+				newMenu.push("TextMiddle");
 				
 				// POST to server
 				// get existed radio feedback
