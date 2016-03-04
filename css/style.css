@@ -53,6 +53,22 @@ h1{
 	opacity: 1;
 }
 
+#eval_items_new {
+	cursor: move;
+}
+
+#eval_items_new i{
+	transition: opacity .2s;
+	opacity: 0;
+	/*display: block;*/
+	cursor: pointer;
+	color: #c00;
+}
+
+#eval_items_new li:hover i{
+	opacity: 1;
+}
+
 #studentHolder {
 	margin-top: 2em;
 	margin-bottom: 2em;
