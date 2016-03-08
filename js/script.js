@@ -20,10 +20,12 @@ var dataUrlObject={};
 var readyToLaunch = false;
 
 // DanO
-var theSection_id, from_netid, to_netid;
-var secret_key = "X7kdsjafoeTRD6DYY76TFDKU6T6HGGDFgd";
-var server_address = "http://itp.nyu.edu/registration/feedback/feedback.php";
-var server_address_menu = "http://itp.nyu.edu/registration/feedback/feedback_test.php";
+var theSection_id, to_netid;
+var from_netid = $("#user_netid").text();
+
+var secret_key = $("#post_key").text();
+var server_address = "https://itp.nyu.edu/registration/feedback/feedback.php";
+//var server_address_menu = "http://itp.nyu.edu/registration/feedback/feedback_test.php";
 var classSemester = "Fall";
 var classYear = "2015";
 //
@@ -39,10 +41,10 @@ function superInit() {
 	});
 
 	// Get all the data of teachers and their classes
-	$.getJSON(server_address + "?action=list_sections&semester=" + classSemester + "&year=" + classYear + "&secret_key=" + secret_key, function(data){
+	$.getJSON(server_address + "?action=list_sections&semester=" + classSemester + "&year=" + classYear + "&secret_key=" + secret_key + "&from_netid=" + from_netid , function(data){
 		
 		allTeacherData = data;
-		// console.log(data[0]);
+		//alert(JSON.stringify(data));
 
 		$.each(data, function(key, val){
 			// val --> Object
@@ -91,7 +93,7 @@ function superInit() {
 function doLoginDialog() {
 	vex.dialog.open({
 		message: "Enter your netId and last name:",
-		input: "<input name=\"netId\" type=\"text\" placeholder=\"netId\" required />\n<input name=\"lastname\" type=\"password\" placeholder=\"Last Name\" required />",
+		input: "<input name=\"netId\" type=\"text\" placeholder=\""+ from_netid +"\" required />\n<input name=\"lastname\" type=\"password\" placeholder=\""+secret_key+"\" required />",
 		buttons: [
 			$.extend({}, vex.dialog.buttons.YES, {
 				text: "Login"
@@ -113,22 +115,22 @@ function doLoginDialog() {
 				});
 				return;
 			}
-			if (!teacherStuff[data.netId]) {
-				// vex.dialog.alert("Oops. Are you sure you are whom you think you are?");
-				vex.dialog.open({
-					message: "Oops. Are you sure you are whom you think you are?",
-					buttons: [
-						$.extend({}, vex.dialog.buttons.YES, {
-							text: 'Retry' 
-						})
-					],
-					callback: function(value) {
-						doLoginDialog();
-						return;
-					}
-				});				
-			}
-			else if( teacherStuff[data.netId].lastname == data.lastname ){
+			// if (!teacherStuff[data.netId]) {
+			// 	// vex.dialog.alert("Oops. Are you sure you are whom you think you are?");
+			// 	vex.dialog.open({
+			// 		message: "Oops. Are you sure you are whom you think you are?",
+			// 		buttons: [
+			// 			$.extend({}, vex.dialog.buttons.YES, {
+			// 				text: 'Retry' 
+			// 			})
+			// 		],
+			// 		callback: function(value) {
+			// 			doLoginDialog();
+			// 			return;
+			// 		}
+			// 	});				
+			// }
+				if( teacherStuff[data.netId].lastname == data.lastname ){
 				from_netid = data.netId;
 
 				// v.1
@@ -154,6 +156,7 @@ function doLoginDialog() {
 						}
 						ultimateSectionID = $("#selectClass").val();
 						theSection_id = ultimateSectionID;
+						//alert(theSection_id);
 						readyToLaunch = true;
 						//
 						init();
@@ -191,36 +194,42 @@ function init () {
 		el = document.getElementById('eval_items_new');
 
 		function list_menu() {
-			return server_address + "?action=get_feedback_menu&semester=" + classSemester + "&year=" + classYear + "&secret_key=" + secret_key + "&from_netid=fake_test&section_id=" + theSection_id;
+
+			return server_address + "?action=get_feedback_menu&semester=" + classSemester + "&year=" + classYear + "&secret_key=" + secret_key + "&from_netid="+from_netid+"&section_id=" + theSection_id;
 		}
+		//alert(list_menu());
+		//$.getJSON( list_menu(), function(data){if (data.type_of_feedback === undefined) alert("OHO");});
 
 		$.getJSON( list_menu(), function(data){
 			// allData = data;
 			
-			console.log(data);
+			//console.log("HERE");
 			// console.log(data.type_of_feedback);
 
 			// v.2
-			console.log(data.type_of_feedback.length);
+			//alert(data);
 			// if the menu is updated, use the record
-			if(data.type_of_feedback.length>0){
-				
-				for(var i=0; i<data.type_of_feedback.length; i++){
-					var e_m_Li = document.createElement('li');
-					e_m_Li.className = data.type_of_feedback[i];
-					e_m_Li.innerHTML = data.type_of_feedback[i] + '<i class="js-remove">X</i>';
-
-					$('#eval_items_new').append(e_m_Li);
-				}
-
-			// if the menu is not updated, use the default
-			} else {
+			if(data.type_of_feedback === undefined){
+			//if(data.type_of_feedback.length>0){
 				for(var i=0; i<default_el.length; i++){
 					var e_m_Li = document.createElement('li');
 					e_m_Li.className = default_el[i];
 					e_m_Li.innerHTML = default_el[i] + '<i class="js-remove">X</i>';
 
 					$('#eval_items_new').append(e_m_Li);
+				}
+
+			// if the menu is not updated, use the default
+			} else {
+
+				for(var i=0; i<data.type_of_feedback.length; i++){
+					if(data.type_of_feedback[i] != "TextMiddle"){
+						var e_m_Li = document.createElement('li');
+						e_m_Li.className = data.type_of_feedback[i];
+						e_m_Li.innerHTML = data.type_of_feedback[i] + '<i class="js-remove">X</i>';
+
+						$('#eval_items_new').append(e_m_Li);
+					}
 				}
 			}
 
@@ -271,6 +280,7 @@ function init () {
 				for(var i=0; i<currentEval.length; i++){
 					newMenu.push(currentEval[i].className);
 				}
+				newMenu.push("TextMiddle");
 				
 				// POST to server
 				// get existed radio feedback
@@ -283,12 +293,12 @@ function init () {
 				var params = {  
 				   "type_of_feedback": newMenu,				   
 				   "section_id": theSection_id,
-				   "from_netid": "fake_test"				   
+				   "from_netid": from_netid				   
 				};
 				
 				// DELETE!!!
 				//$.post(server_address_menu + "?action=update_feedback&secret_key=" + secret_key, params, savedMenuResponse, "json");
-				$.post(server_address + "?action=update_feedback&secret_key=" + secret_key, JSON.stringify(params), function(response){
+				$.post(server_address + "?action=update_feedback&secret_key=" + secret_key+"&from_netid=" + from_netid, JSON.stringify(params), function(response){
 					console.log("DONE!!");
 				}, 'json');
 
@@ -451,7 +461,8 @@ function init () {
 				var getParams = {
 					action: 'get_feedback',
 					section_id: theSection_id,
-					secret_key: secret_key
+					secret_key: secret_key,
+					from_netid: from_netid
 				}
 				$.post(server_address, getParams, gotExistingRadioFeedback, "json").done(function(data){
 					console.log("DONE!");
@@ -482,12 +493,12 @@ function createStudentStuff() {
 	// var jsonURL = "data/section.json";
 
 	function list_student() {
-		return server_address + "?action=list_students&section_id=" + theSection_id + "&secret_key=" + secret_key;
+		return server_address + "?action=list_students&section_id=" + theSection_id + "&secret_key=" + secret_key + "&from_netid=" + from_netid;
 	}
 
 	$.getJSON( list_student(), function(data){
 		allData = data;
-		// console.log(data[0]);
+		 console.log(data[0]);
 
 		courseN.innerHTML += data[0].title;
 		teacherN.innerHTML += teacherStuff[from_netid].firstname + " " + teacherStuff[from_netid].lastname;
@@ -678,7 +689,8 @@ function createStudentStuff() {
 		var getParams = {
 			action: 'get_feedback',
 			section_id: theSection_id,
-			secret_key: secret_key
+			secret_key: secret_key,
+			from_netid: from_netid
 		}
 		$.post(server_address, getParams, gotExistingFeedback, "json");
 	});	
@@ -775,7 +787,8 @@ function changedStuff() {
 		data: my_json,
 		action: 'give_feedback',
 		section_id: theSection_id,
-		secret_key: secret_key
+		secret_key: secret_key,
+		from_netid: from_netid
 	};
 	// console.log(params);
 
@@ -804,7 +817,8 @@ function changedStuffRadio() {
 		data: my_json,
 		action: 'give_feedback',
 		section_id: theSection_id,
-		secret_key: secret_key
+		secret_key: secret_key,
+		from_netid: from_netid
 	}
 
 	// Post to Server!!
