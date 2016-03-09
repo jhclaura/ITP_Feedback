@@ -72,12 +72,15 @@ function superInit() {
 				teacherStuff[_netid].classes.push(classObj);
 			}
 		});
+
+		doSelectDialog();
 	});
 
 	// VEX_DIALOG
 	// For instructors to LogIn (TO-DO)
 		vex.defaultOptions.className = 'vex-theme-wireframe';
-		doLoginDialog();
+		// doLoginDialog();
+		
 
 	byId('saveFake').onclick = function() {
 		// if(readyToLaunch){
@@ -90,6 +93,38 @@ function superInit() {
 	}
 }
 
+function doSelectDialog() {
+	var stringForSelect="<select id='selectClass'>";
+
+	for(var i=0; i<teacherStuff[from_netid].classes.length; i++){
+		stringForSelect += "<option value='" + teacherStuff[from_netid].classes[i].section_id + "'>" + teacherStuff[from_netid].classes[i].name + "</option>";
+	}
+	stringForSelect += "</select>";
+
+	vex.dialog.open({
+		message: "Hi teacher " + teacherStuff[from_netid].lastname + ", which class do you want to give feedback on?",
+		input: stringForSelect,
+		buttons: [
+			$.extend({}, vex.dialog.buttons.YES, {
+				text: "OK"
+			})
+		],
+		callback: function(dataaa) {
+			if(dataaa===false){
+				vex.dialog.alert("See you later!");
+				return;
+			}
+			ultimateSectionID = $("#selectClass").val();
+			theSection_id = ultimateSectionID;
+			//alert(theSection_id);
+			readyToLaunch = true;
+			//
+			init();
+		}
+	});
+}
+
+/* OLD_STUFF
 function doLoginDialog() {
 	vex.dialog.open({
 		message: "Enter your netId and last name:",
@@ -170,6 +205,7 @@ function doLoginDialog() {
 		}
 	});
 }
+*/
 
 function init () {
 
@@ -216,13 +252,15 @@ function init () {
 					e_m_Li.className = default_el[i];
 					e_m_Li.innerHTML = default_el[i] + '<i class="js-remove">X</i>';
 
-					$('#eval_items_new').append(e_m_Li);					
+					$('#eval_items_new').append(e_m_Li);
 				}
 
 			// if the menu is not updated, use the default
 			} else {
 
 				for(var i=0; i<data.type_of_feedback.length; i++){
+					// console.log(data.type_of_feedback[i]);
+
 					if(data.type_of_feedback[i] != "TextMiddle"){
 						var e_m_Li = document.createElement('li');
 						e_m_Li.className = data.type_of_feedback[i];
@@ -272,201 +310,213 @@ function init () {
 			// If clicked, all the students' elements will be updated as same as the TOP one
 			byId('update_skill').onclick = function() {
 
-				// Get the evaluation element object at the TOP
-				var currentEval = evaluateList.el.getElementsByTagName("li");
-				// console.log(currentEval[0].className);
+				vex.dialog.confirm({
+					message: "The menu is about to be updated. Are you sure to do this?",
+					callback: function(value){
+						if(!value){
+							return;
+						}else{
+							// Get the evaluation element object at the TOP
+							var currentEval = evaluateList.el.getElementsByTagName("li");
+							// console.log(currentEval[0].className);
 
-				var newMenu = [];
-				for(var i=0; i<currentEval.length; i++){
-					newMenu.push(currentEval[i].className);
-				}
-				newMenu.push("TextMiddle");
-				
-				// POST to server
-				// get existed radio feedback
-				// var params = {
-				// 	type_of_feedback: newMenu,
-				// 	section_id: theSection_id,
-				// 	from_netid: "fake_test"
-				// };
-
-				var params = {  
-				   "type_of_feedback": newMenu,				   
-				   "section_id": theSection_id,
-				   "from_netid": from_netid				   
-				};
-				
-				// DELETE!!!
-				//$.post(server_address_menu + "?action=update_feedback&secret_key=" + secret_key, params, savedMenuResponse, "json");
-				$.post(server_address + "?action=update_feedback&secret_key=" + secret_key+"&from_netid=" + from_netid, JSON.stringify(params), function(response){
-					console.log("DONE!!");
-				}, 'json');
-
-				listToBeKeptPpl = [];
-				// listToBeKept = [];
-
-				// Detection for DELETE
-				// - using all first student
-				for(var k=0; k<evalScores.length; k++){
-
-					listToBeKept = [];
-					for(var i=0; i<evalScores[k].children.length; i++){
-						var keepObj = {};
-						keepObj['keep'] = false;
-						keepObj['name'] = evalScores[k].children[i].className;
-						keepObj['score'] = -1;
-						listToBeKept.push(keepObj);
-
-						for(var j=0; j<currentEval.length; j++){
-							if( evalScores[k].children[i].className == currentEval[j].className ){
-								listToBeKept[i].keep = true;
-								listToBeKept[i].score = $("[name='"+allData[k].firstname+currentEval[j].className+"Rating']:checked").val();
-								// console.log("keep li " + currentEval[j].className);
+							var newMenu = [];
+							for(var i=0; i<currentEval.length; i++){
+								newMenu.push(currentEval[i].className);
 							}
+							newMenu.push("TextMiddle");
+							
+							// console.log( newMenu );
+							// POST to server
+							// get existed radio feedback
+							// var params = {
+							// 	type_of_feedback: newMenu,
+							// 	section_id: theSection_id,
+							// 	from_netid: "fake_test"
+							// };
+
+							var params = {  
+							   "type_of_feedback": newMenu,				   
+							   "section_id": theSection_id,
+							   "from_netid": from_netid				   
+							};
+							
+							// DELETE!!!
+							//$.post(server_address_menu + "?action=update_feedback&secret_key=" + secret_key, params, savedMenuResponse, "json");
+							$.post(server_address + "?action=update_feedback&secret_key=" + secret_key+"&from_netid=" + from_netid, JSON.stringify(params), function(response){
+								//console.log("DONE!!");
+							}, 'json');
+
+							listToBeKeptPpl = [];
+							// listToBeKept = [];
+
+							// Detection for DELETE
+							// - using all first student
+							for(var k=0; k<evalScores.length; k++){
+
+								listToBeKept = [];
+								for(var i=0; i<evalScores[k].children.length; i++){
+									var keepObj = {};
+									keepObj['keep'] = false;
+									keepObj['name'] = evalScores[k].children[i].className;
+									keepObj['score'] = -1;
+									listToBeKept.push(keepObj);
+
+									for(var j=0; j<currentEval.length; j++){
+										if( evalScores[k].children[i].className == currentEval[j].className ){
+											listToBeKept[i].keep = true;
+											listToBeKept[i].score = $("[name='"+allData[k].firstname+currentEval[j].className+"Rating']:checked").val();
+											// console.log("keep li " + currentEval[j].className);
+										}
+									}
+									// Delete the eval ranking of all the students
+										// while (evalScores[i].firstChild) 
+										// 	evalScores[i].removeChild(evalScores[i].firstChild);
+								}
+								listToBeKeptPpl.push(listToBeKept);
+							}
+
+							// Delete
+							// - ALL
+							for(var i=0; i<evalScores.length; i++){
+								while (evalScores[i].firstChild) 
+									evalScores[i].removeChild(evalScores[i].firstChild);
+							}
+
+							// For each evaluation element at TOP
+							for(var i=0; i<currentEval.length; i++){
+								var isCheckedAlready = false;
+								var indexOfCheckedList = -1;
+
+								// Get the checked Value!
+								// for(var j=0; j<listToBeKept.length; j++){
+								for(var j=0; j<listToBeKeptPpl[0].length; j++){
+									if( (currentEval[i].className == listToBeKeptPpl[0][j].name)
+										&& listToBeKeptPpl[0][j].keep ) {
+										isCheckedAlready = true;
+										indexOfCheckedList = j;
+										// console.log(currentEval[i].className + "is checked (first student): " + listToBeKeptPpl[0][j].score);
+									}
+								}
+
+								// Get the text of the element, eg Fabrication
+								var tmpL = currentEval[i].innerHTML;
+								var tmpCut = tmpL.split("<");
+
+								// For each student, recreate the evaluation element
+								// v1
+								// for(var j=0; j<evalScores.length; j++){
+									// var s_el_simple = document.createElement('li');
+									// s_el_simple.innerHTML = tmpCut[0];
+									// evalScores[j].appendChild(s_el_simple);					
+								// }
+
+								// v2
+								// var $eLi = $("<li>").text(tmpCut[0]).appendTo($('.eval_scores'));
+
+								// var $eSpan = $("<span>",{
+								// 	class: "star-rating"
+								// }).appendTo($eLi);
+
+								// for(var j=0; j<5; j++){
+								// 	$("<input>", {
+								// 		type: "radio",
+								// 		name: tmpCut[0]+"Rating",
+								// 		value: j+1
+								// 	}).appendTo($eSpan);
+								// }
+
+								// v3
+								// For every Div with className "eval_scores"
+								// --> For every students' rankings
+								$('.eval_scores').each(function(index){
+
+									// Create li element, and assign text, eg Fabrication
+									// Then append to the Div
+									// v.1
+									// var $eLi = $("<li>").text(tmpCut[0]);
+									// v.2
+									var $eLi = $("<li>", {
+										text: tmpCut[0],
+										class: tmpCut[0]
+									});
+
+									$(this).append($eLi);
+
+									// Create span element, to restore all the ranking inputs
+									// Then append to li
+									var $eSpan = $("<span>",{
+										class: "star-rating"
+									}).appendTo($eLi);
+
+									// console.log("index: " + index);
+
+									// To create Four ranking dots for each element
+									for(var j=0; j<4; j++){
+										// Create input element
+										// And assign specific name, eg Laura+Fabrication+Rating, so FIVE dots are in a group
+										// v.1
+										// $("<input>", {
+										// 	type: "radio",
+										// 	name: allData[index].firstname+tmpCut[0]+"Rating",
+										// 	value: j+1
+										// }).appendTo($eSpan);
+
+										var $eLabel = $("<label>", {
+											class: "radio-inline",
+											text: rankingTexts[j]
+										});
+
+										// v.1
+										// create input radio with client_side history
+										// if( isCheckedAlready && j==(listToBeKeptPpl[index][indexOfCheckedList].score-1) ){
+										// 	$("<input>", {
+										// 		class: allData[index].netid + "_" + tmpCut[0],
+										// 		type: "radio",
+										// 		name: allData[index].firstname+tmpCut[0]+"Rating",
+										// 		value: j+1,
+										// 		checked: "checked"
+										// 	}).change( changedStuffRadio ).appendTo($eLabel);
+
+										// 	$eLabel.appendTo($eSpan);
+										// } else {
+										// 	$("<input>", {
+										// 		class: allData[index].netid + "_" + tmpCut[0],
+										// 		type: "radio",
+										// 		name: allData[index].firstname+tmpCut[0]+"Rating",
+										// 		value: j+1
+										// 	}).change( changedStuffRadio ).appendTo($eLabel);
+										// 	$eLabel.appendTo($eSpan);
+										// }
+
+										// v.2
+										// create input radio with server_side history
+										$("<input>", {
+											class: allData[index].netid + "_" + tmpCut[0],
+											type: "radio",
+											name: allData[index].netid + "_" +tmpCut[0]+"Rating",
+											value: j
+										}).change( changedStuffRadio ).appendTo($eLabel);
+										$eLabel.appendTo($eSpan);
+									}
+								});
+							}
+
+							// get existed radio feedback
+							var getParams = {
+								action: 'get_feedback',
+								section_id: theSection_id,
+								secret_key: secret_key,
+								from_netid: from_netid
+							}
+							$.post(server_address, getParams, gotExistingRadioFeedback, "json").done(function(data){
+								// console.log("DONE!");
+							});							
 						}
-						// Delete the eval ranking of all the students
-							// while (evalScores[i].firstChild) 
-							// 	evalScores[i].removeChild(evalScores[i].firstChild);
 					}
-					listToBeKeptPpl.push(listToBeKept);
-				}
-
-				// Delete
-				// - ALL
-				for(var i=0; i<evalScores.length; i++){
-					while (evalScores[i].firstChild) 
-						evalScores[i].removeChild(evalScores[i].firstChild);
-				}
-
-				// For each evaluation element at TOP
-				for(var i=0; i<currentEval.length; i++){
-					var isCheckedAlready = false;
-					var indexOfCheckedList = -1;
-
-					// Get the checked Value!
-					// for(var j=0; j<listToBeKept.length; j++){
-					for(var j=0; j<listToBeKeptPpl[0].length; j++){
-						if( (currentEval[i].className == listToBeKeptPpl[0][j].name)
-							&& listToBeKeptPpl[0][j].keep ) {
-							isCheckedAlready = true;
-							indexOfCheckedList = j;
-							console.log(currentEval[i].className + "is checked (first student): " + listToBeKeptPpl[0][j].score);
-						}
-					}
-
-					// Get the text of the element, eg Fabrication
-					var tmpL = currentEval[i].innerHTML;
-					var tmpCut = tmpL.split("<");
-
-					// For each student, recreate the evaluation element
-					// v1
-					// for(var j=0; j<evalScores.length; j++){
-						// var s_el_simple = document.createElement('li');
-						// s_el_simple.innerHTML = tmpCut[0];
-						// evalScores[j].appendChild(s_el_simple);					
-					// }
-
-					// v2
-					// var $eLi = $("<li>").text(tmpCut[0]).appendTo($('.eval_scores'));
-
-					// var $eSpan = $("<span>",{
-					// 	class: "star-rating"
-					// }).appendTo($eLi);
-
-					// for(var j=0; j<5; j++){
-					// 	$("<input>", {
-					// 		type: "radio",
-					// 		name: tmpCut[0]+"Rating",
-					// 		value: j+1
-					// 	}).appendTo($eSpan);
-					// }
-
-					// v3
-					// For every Div with className "eval_scores"
-					// --> For every students' rankings
-					$('.eval_scores').each(function(index){
-
-						// Create li element, and assign text, eg Fabrication
-						// Then append to the Div
-						// v.1
-						// var $eLi = $("<li>").text(tmpCut[0]);
-						// v.2
-						var $eLi = $("<li>", {
-							text: tmpCut[0],
-							class: tmpCut[0]
-						});
-
-						$(this).append($eLi);
-
-						// Create span element, to restore all the ranking inputs
-						// Then append to li
-						var $eSpan = $("<span>",{
-							class: "star-rating"
-						}).appendTo($eLi);
-
-						// console.log("index: " + index);
-
-						// To create Four ranking dots for each element
-						for(var j=0; j<4; j++){
-							// Create input element
-							// And assign specific name, eg Laura+Fabrication+Rating, so FIVE dots are in a group
-							// v.1
-							// $("<input>", {
-							// 	type: "radio",
-							// 	name: allData[index].firstname+tmpCut[0]+"Rating",
-							// 	value: j+1
-							// }).appendTo($eSpan);
-
-							var $eLabel = $("<label>", {
-								class: "radio-inline",
-								text: rankingTexts[j]
-							});
-
-							// v.1
-							// create input radio with client_side history
-							// if( isCheckedAlready && j==(listToBeKeptPpl[index][indexOfCheckedList].score-1) ){
-							// 	$("<input>", {
-							// 		class: allData[index].netid + "_" + tmpCut[0],
-							// 		type: "radio",
-							// 		name: allData[index].firstname+tmpCut[0]+"Rating",
-							// 		value: j+1,
-							// 		checked: "checked"
-							// 	}).change( changedStuffRadio ).appendTo($eLabel);
-
-							// 	$eLabel.appendTo($eSpan);
-							// } else {
-							// 	$("<input>", {
-							// 		class: allData[index].netid + "_" + tmpCut[0],
-							// 		type: "radio",
-							// 		name: allData[index].firstname+tmpCut[0]+"Rating",
-							// 		value: j+1
-							// 	}).change( changedStuffRadio ).appendTo($eLabel);
-							// 	$eLabel.appendTo($eSpan);
-							// }
-
-							// v.2
-							// create input radio with server_side history
-							$("<input>", {
-								class: allData[index].netid + "_" + tmpCut[0],
-								type: "radio",
-								name: allData[index].netid + "_" +tmpCut[0]+"Rating",
-								value: j
-							}).change( changedStuffRadio ).appendTo($eLabel);
-							$eLabel.appendTo($eSpan);
-						}
-					});
-				}
-
-				// get existed radio feedback
-				var getParams = {
-					action: 'get_feedback',
-					section_id: theSection_id,
-					secret_key: secret_key,
-					from_netid: from_netid
-				}
-				$.post(server_address, getParams, gotExistingRadioFeedback, "json").done(function(data){
-					console.log("DONE!");
 				});
+
+				
 			}
 
 			createStudentStuff();
@@ -476,7 +526,7 @@ function init () {
 function createStudentStuff() {
 	// Get all the default eval ranking elements, from the Sortable object at the TOP
 	var defaultEval = evaluateList.el.getElementsByTagName("li");
-	console.log( defaultEval );
+	// console.log( defaultEval );
 
 	// Get all the names of the default eval ranking elements
 	for(var i=0; i<defaultEval.length; i++){
@@ -498,7 +548,7 @@ function createStudentStuff() {
 
 	$.getJSON( list_student(), function(data){
 		allData = data;
-		 console.log(data[0]);
+		 // console.log(data[0]);
 
 		courseN.innerHTML += data[0].title;
 		teacherN.innerHTML += teacherStuff[from_netid].firstname + " " + teacherStuff[from_netid].lastname;
@@ -616,7 +666,7 @@ function createStudentStuff() {
 				class: "btn btn-default btnSS",
 				text: "Send Email",
 				click:  function(){
-							console.log("click!");
+							//console.log("click!");
 							$("#"+val.netid+"EmailButton").css("background-color","#7be6d4");
 
 							//v.1
@@ -705,7 +755,7 @@ function gotExistingFeedback(existing_feedback) {
 		// console.log(element);
 
 		if (element == null) {
-			console.log("I am sorry but I am unfamiliar with that type of feedback");
+			//console.log("I am sorry but I am unfamiliar with that type of feedback");
 		}
 		else if(element.length>0) {
 			var uncodingData = unescape(existing_feedback[i].feedback);
@@ -830,7 +880,7 @@ function savedItResponse(response) {
 }
 
 function savedMenuResponse(response) {
-	console.log(response);
+	//console.log(response);
 }
 
 var strMailto, hasQ;
