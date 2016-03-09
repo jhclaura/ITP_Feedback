@@ -216,7 +216,7 @@ function init () {
 					e_m_Li.className = default_el[i];
 					e_m_Li.innerHTML = default_el[i] + '<i class="js-remove">X</i>';
 
-					$('#eval_items_new').append(e_m_Li);
+					$('#eval_items_new').append(e_m_Li);					
 				}
 
 			// if the menu is not updated, use the default
